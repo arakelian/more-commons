@@ -29,7 +29,7 @@ Add the following to your `pom.xml`:
 <dependency>
     <groupId>com.arakelian</groupId>
     <artifactId>more-commons</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -44,7 +44,7 @@ repositories {
 }
 
 dependencies {
-  testCompile 'com.arakelian:jackson-utils:1.5.0'
+  testCompile 'com.arakelian:jackson-utils:1.5.1'
 }
 ```
 
