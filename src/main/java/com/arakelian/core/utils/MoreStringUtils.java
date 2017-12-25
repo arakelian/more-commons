@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -138,8 +138,9 @@ public class MoreStringUtils {
     /**
      * Returns a {@link File} from the given filename.
      *
-     * Ensures that the incoming filename has backslashes converted to forward slashes (on Unix OS), and
-     * vice-versa on Windows OS, otherwise, the path separation methods of {@link File} will not work.
+     * Ensures that the incoming filename has backslashes converted to forward slashes (on Unix OS),
+     * and vice-versa on Windows OS, otherwise, the path separation methods of {@link File} will not
+     * work.
      *
      * @param parent
      *            parent file name
@@ -155,8 +156,9 @@ public class MoreStringUtils {
     /**
      * Returns a {@link File} from the given filename.
      *
-     * Ensures that the incoming filename has backslashes converted to forward slashes (on Unix OS), and
-     * vice-versa on Windows OS, otherwise, the path separation methods of {@link File} will not work.
+     * Ensures that the incoming filename has backslashes converted to forward slashes (on Unix OS),
+     * and vice-versa on Windows OS, otherwise, the path separation methods of {@link File} will not
+     * work.
      *
      * @param filename
      *            filename to be used
@@ -203,15 +205,15 @@ public class MoreStringUtils {
     }
 
     /**
-     * Returns a masked string, leaving only the given number of characters unmasked. The mask character
-     * is an asterisk.
+     * Returns a masked string, leaving only the given number of characters unmasked. The mask
+     * character is an asterisk.
      *
      * @param s
      *            string that requires masking
      * @param unmaskedLength
-     *            number of characters to leave unmasked; if positive, the unmasked characters are at
-     *            the end of the string, otherwise the unmasked characters are at the start of the
-     *            string.
+     *            number of characters to leave unmasked; if positive, the unmasked characters are
+     *            at the end of the string, otherwise the unmasked characters are at the start of
+     *            the string.
      * @return a masked string
      */
     public static String maskExcept(final String s, final int unmaskedLength) {
@@ -224,9 +226,9 @@ public class MoreStringUtils {
      * @param s
      *            string that requires masking
      * @param unmaskedLength
-     *            number of characters to leave unmasked; if positive, the unmasked characters are at
-     *            the end of the string, otherwise the unmasked characters are at the start of the
-     *            string.
+     *            number of characters to leave unmasked; if positive, the unmasked characters are
+     *            at the end of the string, otherwise the unmasked characters are at the start of
+     *            the string.
      * @param maskChar
      *            character to be used for masking
      * @return a masked string
@@ -249,12 +251,12 @@ public class MoreStringUtils {
     }
 
     /**
-     * Returns a normalized filename, where the incoming filename has backslashes converted to forward
-     * slashes (on Unix OS), and vice-versa on Windows OS, otherwise, the path separation methods of
-     * {@link File} will not work.
+     * Returns a normalized filename, where the incoming filename has backslashes converted to
+     * forward slashes (on Unix OS), and vice-versa on Windows OS, otherwise, the path separation
+     * methods of {@link File} will not work.
      *
-     * Note that unlike {@link FilenameUtils#normalize(String)}, this method does not change or remove
-     * any relative paths, etc, which could cause the return value to become null.
+     * Note that unlike {@link FilenameUtils#normalize(String)}, this method does not change or
+     * remove any relative paths, etc, which could cause the return value to become null.
      *
      * @param filename
      *            filename whose separators should be normalized
@@ -274,9 +276,129 @@ public class MoreStringUtils {
         }
     }
 
+    public static String normalizeTypography(final String value) {
+        if (value == null || value.length() == 0) {
+            return value;
+        }
+
+        boolean changing = false;
+        for (int i = 0, length = value.length(); i < length; i++) {
+            final char ch = value.charAt(i);
+            switch (ch) {
+            case '\u00A0': // non-breaking space
+            case '\u2002': // en space
+            case '\u2003': // em space
+            case '\u2004': // three-per-em space
+            case '\u2005': // four-per-em space
+            case '\u2006': // six-per-em space
+            case '\u2007': // figure space
+            case '\u2008': // punctuation space
+            case '\u2009': // thin space
+            case '\u200A': // hair space
+            case '\u2010': // hyphen
+            case '\u2011': // non-breaking hyphen
+            case '\u2012': // figure dash
+            case '\u2013': // en dash
+            case '\u2014': // em dash
+            case '\u2024': // one dot leader
+            case '\u2025': // two dot leader
+            case '\u2026': // three dot leader
+            case '\u2038': // caret
+            case '\u2039': // left angle quotation mark
+            case '\u203A': // left angle quotation mark
+            case '\u2018': // left Single Quotation Mark
+            case '\u2019': // right Single Quotation Mark
+            case '\u201C': // left Double Quotation Mark
+            case '\u201D': // right Double Quotation Mark
+                changing = true;
+                break;
+            default:
+                // leave as is
+            }
+        }
+
+        if (!changing) {
+            return value;
+        }
+
+        // see: https://www.compart.com/en/unicode/block/U+2000
+        final StringBuilder buf = new StringBuilder(value);
+        for (int i = 0, length = buf.length(); i < length; i++) {
+            final char ch = buf.charAt(i);
+            switch (ch) {
+            case '\u00A0': // non-breaking space
+            case '\u2002': // en space
+            case '\u2003': // em space
+            case '\u2004': // three-per-em space
+            case '\u2005': // four-per-em space
+            case '\u2006': // six-per-em space
+            case '\u2007': // figure space
+            case '\u2008': // punctuation space
+            case '\u2009': // thin space
+            case '\u200A': // hair space
+                buf.setCharAt(i, ' ');
+                break;
+            case '\u2010': // hyphen
+            case '\u2011': // non-breaking hyphen
+            case '\u2012': // figure dash
+            case '\u2013': // en dash
+            case '\u2014': // em dash
+                buf.setCharAt(i, '-');
+                break;
+            case '\u2024': // one dot leader
+                buf.setCharAt(i, '.');
+                break;
+            case '\u2025': // two dot leader
+                buf.setCharAt(i, '.');
+                buf.insert(i + 1, ".");
+                length = buf.length();
+                break;
+            case '\u2026': // three dot leader
+                buf.setCharAt(i, '.');
+                buf.insert(i + 1, "..");
+                length = buf.length();
+                break;
+            case '\u2038': // caret
+                buf.setCharAt(i, '^');
+                break;
+            case '\u2039': // left angle quotation mark
+                buf.setCharAt(i, '<');
+                break;
+            case '\u203A': // left angle quotation mark
+                buf.setCharAt(i, '>');
+                break;
+            case '\u2018':
+                // Left Single Quotation Mark
+                // see: https://www.compart.com/en/unicode/U+2018
+                buf.setCharAt(i, '\'');
+                break;
+            case '\u2019':
+                // Right Single Quotation Mark
+                // see: https://www.compart.com/en/unicode/U+2019
+                buf.setCharAt(i, '\'');
+                break;
+            case '\u201C':
+                // Left Double Quotation Mark
+                // see: https://www.compart.com/en/unicode/U+201C
+                buf.setCharAt(i, '"');
+                break;
+            case '\u201D':
+                // Right Double Quotation Mark
+                // see: https://www.compart.com/en/unicode/U+201D
+                buf.setCharAt(i, '"');
+                break;
+            default:
+                // leave as is
+            }
+        }
+
+        // return cleaned string
+        return buf.toString();
+    }
+
     /**
-     * Returns a short UUID which is encoding use base 64 characters instead of hexadecimal. This saves
-     * 10 bytes per UUID.
+     * Returns a short UUID which is encoding use base 64 characters instead of hexadecimal. This
+     * saves 10 bytes per UUID.
      *
      * @return short UUID which is encoding use base 64 characters instead of hexadecimal
      */
@@ -330,8 +452,8 @@ public class MoreStringUtils {
     /**
      * Converts the given UUID to a String (without hyphens).
      *
-     * UUID.toString().replace("-","") works ok functionally, but we can make it go much faster (by 4x
-     * with micro-benchmark).
+     * UUID.toString().replace("-","") works ok functionally, but we can make it go much faster (by
+     * 4x with micro-benchmark).
      *
      * NOTE: This method was lifted from Jackson's UUIDSerializer.
      *
@@ -371,9 +493,9 @@ public class MoreStringUtils {
     /**
      * Strip leading and trailing whitespace from a String.
      *
-     * Spring's version of StringUtils.trimWhitespace needlessly creates a StringBuilder when whitespace
-     * characters are not present, and java.lang.String.trim() removes non-printable characters in a
-     * non-unicode safe way.
+     * Spring's version of StringUtils.trimWhitespace needlessly creates a StringBuilder when
+     * whitespace characters are not present, and java.lang.String.trim() removes non-printable
+     * characters in a non-unicode safe way.
      *
      * @param s
      *            string to be trimmed
