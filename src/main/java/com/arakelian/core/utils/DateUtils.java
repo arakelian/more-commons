@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -189,11 +189,25 @@ public class DateUtils {
                 || dateTime.getNano() != 0);
     }
 
+    public static boolean isUtc(final ZonedDateTime date) {
+        if (date == null) {
+            return false;
+        }
+        final ZoneId zone = date.getZone();
+        if (zone == null) {
+            return false;
+        }
+        String id = zone.getId();
+        return "Z".equals(id);
+    }
+
     public static ZonedDateTime nowWithZoneUtc() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
-    public static <T> T parse(final String text, final ZoneId zoneIfNotSpecified,
+    public static <T> T parse(
+            final String text,
+            final ZoneId zoneIfNotSpecified,
             final TemporalQuery<T> query) {
         if (text == null) {
             return null;
@@ -264,6 +278,33 @@ public class DateUtils {
         return toStringIsoFormat(toZonedDateTimeUtc(date));
     }
 
+    /**
+     * <p>
+     * Returns the given <code>ZonedDateTime</code> in ISO format that readable by a wide range of
+     * clients.
+     * </p>
+     * 
+     * <p>
+     * In general the format has these components:
+     * </p>
+     * <ul>
+     * <li>A date: <code>yyyy '-' MM '-' dd</code></li>
+     * <li>A time: <code>'T' HH ':' mm ':' ss</code></li>
+     * <li>Milliseconds: <code>('.' | ',') digit+</code></li>
+     * <li>UTC offset: <code>'Z'</code></li>
+     * </ul>
+     * 
+     * Example: 2017-12-29T03:21:24.564000000Z
+     * 
+     * @param date
+     *            a zoned date/time value
+     * @return the given <code>ZonedDateTime</code> in ISO format
+     * 
+     * @see <a
+     *      href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateOptionalTimeParser--">dateOptionalTimeParser</a>
+     * @see <a
+     *      href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#mapping-date-format">strict_date_optional_time</a>
+     */
     public static String toStringIsoFormat(final ZonedDateTime date) {
         // we convert given date to UTC timezone and output in UTC format (ends with Z)
         return date != null ? date.withZoneSameInstant(ZoneOffset.UTC).format(ISO_8601_NANOS) : null;

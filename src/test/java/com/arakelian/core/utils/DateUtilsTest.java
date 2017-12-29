@@ -30,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DateUtilsTest {
@@ -82,17 +83,23 @@ public class DateUtilsTest {
 
     @Test
     public void testParseMillis() {
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 0, 000000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 0, 000000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46Z"));
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39Z"));
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 830000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 830000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.830Z"));
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 810000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 810000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.810Z"));
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.000Z"));
-        verifySameZonedDateTime(ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 999000000, ZoneOffset.UTC),
+        verifySameZonedDateTime(
+                ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 999000000, ZoneOffset.UTC),
                 DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.999Z"));
     }
 
@@ -129,11 +136,14 @@ public class DateUtilsTest {
 
     @Test
     public void testToString() {
-        verifyToStringWithTrailingZeroes("2016-12-21T16:46:39.830000000Z",
+        verifyToStringWithTrailingZeroes(
+                "2016-12-21T16:46:39.830000000Z",
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 830000000, ZoneOffset.UTC));
-        verifyToStringWithTrailingZeroes("2016-12-21T16:46:39.810000000Z",
+        verifyToStringWithTrailingZeroes(
+                "2016-12-21T16:46:39.810000000Z",
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 810000000, ZoneOffset.UTC));
-        verifyToStringWithTrailingZeroes("2016-12-21T16:46:39.000000000Z",
+        verifyToStringWithTrailingZeroes(
+                "2016-12-21T16:46:39.000000000Z",
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC));
         final ZonedDateTime date2 = ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 999999999, ZoneOffset.UTC);
         assertEquals("2016-12-21T16:46:39.999999999Z", DateUtils.toStringIsoFormat(date2));
@@ -189,12 +199,20 @@ public class DateUtilsTest {
         // should look like this: 2016-12-18T16:04:41.198Z
         final int length = text.length();
         assertTrue("Expected \"" + text + "\" to be 30 characters long", length == 30);
-        assertEquals("Expected \"" + text + "\" to end with letter Z", "Z",
+        assertEquals(
+                "Expected \"" + text + "\" to end with letter Z",
+                "Z",
                 text.substring(length - 1, length));
 
         // parse date and compare
         final ZonedDateTime dateWithZoneUtc = date.withZoneSameInstant(ZoneOffset.UTC);
         verifySameZonedDateTime(dateWithZoneUtc, DateUtils.toZonedDateTimeUtc(text));
+    }
+
+    @Test
+    public void testIsUtc() {
+        Assert.assertTrue(DateUtils.isUtc(DateUtils.nowWithZoneUtc()));
+        Assert.assertFalse(DateUtils.isUtc(ZonedDateTime.now(ZoneId.of("America/New_York"))));
     }
 
     private void verifyToStringWithTrailingZeroes(final String expected, final ZonedDateTime date) {
