@@ -30,7 +30,7 @@ Add the following to your `pom.xml`:
     <groupId>com.arakelian</groupId>
     <artifactId>more-commons</artifactId>
     <version>1.6.1</version>
-    <scope>test</scope>
+    <scope>compile</scope>
 </dependency>
 ```
 
