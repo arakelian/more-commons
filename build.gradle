@@ -65,9 +65,3 @@ dependencies {
     // and they need to be on the 'compile' classpath
     provided 'junit:junit:4.12'
 }
-
-uploadArchives {
-    repositories {
-        mavenLocal()
-    }
-}
