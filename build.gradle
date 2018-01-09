@@ -34,11 +34,11 @@ task wrapper(type: Wrapper) {
 
 multitool {
     relocates += [
-        'com.google.common'      : 'repackaged.com.arakelian.core.com.google.common',
-        'com.google.thirdparty'  : 'repackaged.com.arakelian.core.com.google.thirdparty',
-        'javax.annotation'       : 'repackaged.com.arakelian.core.javax.annotation',
-        'org.apache.commons'     : 'repackaged.com.arakelian.core.org.apache.commons',
-        'org.objectweb.asm'      : 'repackaged.com.arakelian.core.org.objectweb.asm',
+        'com.google.common'      : 'repackaged.com.arakelian.core.${prefix}com.google.common',
+        'com.google.thirdparty'  : 'repackaged.com.arakelian.core.${prefix}com.google.thirdparty',
+        'javax.annotation'       : 'repackaged.com.arakelian.core.${prefix}javax.annotation',
+        'org.apache.commons'     : 'repackaged.com.arakelian.core.${prefix}org.apache.commons',
+        'org.objectweb.asm'      : 'repackaged.com.arakelian.core.${prefix}org.objectweb.asm',
     ]
 }
 
