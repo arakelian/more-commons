@@ -109,6 +109,7 @@ public class DateUtils {
             .parseCaseInsensitive() //
             .optionalStart().append(DateTimeFormatter.ISO_ZONED_DATE_TIME).optionalEnd() //
             .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd() //
             .parseStrict() //
             .parseCaseInsensitive() //
             .appendPattern("[yyyy/M[M]/d[d]]") //
@@ -197,7 +198,7 @@ public class DateUtils {
         if (zone == null) {
             return false;
         }
-        String id = zone.getId();
+        final String id = zone.getId();
         return "Z".equals(id);
     }
 
@@ -283,7 +284,7 @@ public class DateUtils {
      * Returns the given <code>ZonedDateTime</code> in ISO format that readable by a wide range of
      * clients.
      * </p>
-     * 
+     *
      * <p>
      * In general the format has these components:
      * </p>
@@ -293,13 +294,13 @@ public class DateUtils {
      * <li>Milliseconds: <code>('.' | ',') digit+</code></li>
      * <li>UTC offset: <code>'Z'</code></li>
      * </ul>
-     * 
+     *
      * Example: 2017-12-29T03:21:24.564000000Z
-     * 
+     *
      * @param date
      *            a zoned date/time value
      * @return the given <code>ZonedDateTime</code> in ISO format
-     * 
+     *
      * @see <a
      *      href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateOptionalTimeParser--">dateOptionalTimeParser</a>
      * @see <a
@@ -322,8 +323,33 @@ public class DateUtils {
         return instant != null ? ZonedDateTime.ofInstant(instant, ZoneOffset.UTC) : null;
     }
 
-    public static ZonedDateTime toZonedDateTimeUtc(final long epochMillis) {
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), ZoneOffset.UTC);
+    /**
+     * Returns a <code>ZonedDateTime</code> from the given epoch value.
+     *
+     * Note that this implementation attempts to protect against caller providing timestamps in
+     * different units. For example, Unix timestamps are the number of SECONDS since January 1,
+     * 1970, while Java Dates are number of MILLISECONDS since January 1, 1970.
+     *
+     * @param epoch
+     *            timestamp value in seconds, milliseconds or microseconds
+     * @return a <code>ZonedDateTime</code> or null if the date is not valid
+     */
+    public static ZonedDateTime toZonedDateTimeUtc(final long epoch) {
+        final Instant instant;
+        if (epoch >= 100000000000000L || epoch <= -100000000000000L) {
+            // we assume timestamp is in microseconds
+            // note: the last possible date in milliseconds: November 16, 5138 9:46:39.999 AM
+            instant = Instant.ofEpochMilli(epoch / 1000);
+        } else if (epoch >= 100000000000L || epoch <= -100000000000L) {
+            // we assume timestamp is in milliseconds
+            // note: the last possible date in seconds: November 16, 5138 9:46:39 AM
+            instant = Instant.ofEpochMilli(epoch);
+        } else {
+            // we assume timestamp is in seconds
+            instant = Instant.ofEpochSecond(epoch);
+        }
+
+        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
     public static ZonedDateTime toZonedDateTimeUtc(final String text) {

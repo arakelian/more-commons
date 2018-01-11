@@ -160,6 +160,19 @@ public class DateUtilsTest {
     }
 
     @Test
+    public void testEpochConversion() {
+        final ZonedDateTime now = DateUtils.nowWithZoneUtc();
+        long epochMillis = now.toInstant().toEpochMilli();
+        long epochSeconds = epochMillis / 1000;
+        long epochNanos = epochMillis * 1000;
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochSeconds).toEpochSecond());
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochMillis).toEpochSecond());
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochNanos).toEpochSecond());
+        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochMillis));
+        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochNanos));
+    }
+
+    @Test
     public void testUtcSerialization() {
         final ZonedDateTime expected = DateUtils.nowWithZoneUtc();
         final ZonedDateTime actual = DateUtils.toZonedDateTimeUtc(expected.toString());
