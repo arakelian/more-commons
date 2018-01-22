@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,6 +63,27 @@ import com.google.common.collect.Sets;
 @Value.Immutable(copy = false)
 @Value.Style(typeAbstract = { "Abstract*" }, typeImmutable = "*")
 public abstract class AbstractClassScanner {
+    public static class NamePredicate implements Predicate<String> {
+        /**
+         * File matching pattern
+         */
+        private final Pattern[] patterns;
+
+        public NamePredicate(final Pattern... patterns) {
+            this.patterns = patterns;
+        }
+
+        @Override
+        public boolean apply(final String name) {
+            for (int i = 0, n = patterns != null ? patterns.length : 0; i < n; i++) {
+                if (patterns[i].matcher(name).matches()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     private final class ClassFilter extends ClassVisitor {
         /**
          * The name of the visited class.
@@ -78,30 +99,14 @@ public abstract class AbstractClassScanner {
             super(Opcodes.ASM4);
         }
 
-        @SuppressWarnings({ "unchecked", "NonRuntimeAnnotation" })
-        private boolean annotatedWithOrAssignableFrom(final Class clazz) {
-            for (final Class<?> c : getAnnotatedWith()) {
-                if (c.isAnnotation()) {
-                    if (clazz.getAnnotation(c) != null) {
-                        if (getClassPredicate() == null || getClassPredicate().apply(clazz)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            for (final Class<?> c : getAssignableFrom()) {
-                if (c.isAssignableFrom(clazz)) {
-                    if (getClassPredicate() == null || getClassPredicate().apply(clazz)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
         @Override
-        public void visit(final int version, final int access, final String name, final String signature,
-                final String superName, final String[] interfaces) {
+        public void visit(
+                final int version,
+                final int access,
+                final String name,
+                final String signature,
+                final String superName,
+                final String[] interfaces) {
             className = name;
             isScoped = (access & Opcodes.ACC_PUBLIC) != 0;
         }
@@ -136,21 +141,32 @@ public abstract class AbstractClassScanner {
         }
 
         @Override
-        public FieldVisitor visitField(final int i, final String string, final String string0,
-                final String string1, final Object object) {
+        public FieldVisitor visitField(
+                final int i,
+                final String string,
+                final String string0,
+                final String string1,
+                final Object object) {
             // Do nothing
             return null;
         }
 
         @Override
-        public void visitInnerClass(final String name, final String outerName, final String innerName,
+        public void visitInnerClass(
+                final String name,
+                final String outerName,
+                final String innerName,
                 final int access) {
             // Do nothing
         }
 
         @Override
-        public MethodVisitor visitMethod(final int i, final String string, final String string0,
-                final String string1, final String[] string2) {
+        public MethodVisitor visitMethod(
+                final int i,
+                final String string,
+                final String string0,
+                final String string1,
+                final String[] string2) {
             // Do nothing
             return null;
         }
@@ -164,23 +180,23 @@ public abstract class AbstractClassScanner {
         public void visitSource(final String string, final String string0) {
             // Do nothing
         }
-    }
 
-    public static class NamePredicate implements Predicate<String> {
-        /**
-         * File matching pattern
-         */
-        private final Pattern[] patterns;
-
-        public NamePredicate(final Pattern... patterns) {
-            this.patterns = patterns;
-        }
-
-        @Override
-        public boolean apply(final String name) {
-            for (int i = 0, n = patterns != null ? patterns.length : 0; i < n; i++) {
-                if (patterns[i].matcher(name).matches()) {
-                    return true;
+        @SuppressWarnings({ "unchecked", "NonRuntimeAnnotation" })
+        private boolean annotatedWithOrAssignableFrom(final Class clazz) {
+            for (final Class<?> c : getAnnotatedWith()) {
+                if (c.isAnnotation()) {
+                    if (clazz.getAnnotation(c) != null) {
+                        if (getClassPredicate() == null || getClassPredicate().apply(clazz)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            for (final Class<?> c : getAssignableFrom()) {
+                if (c.isAssignableFrom(clazz)) {
+                    if (getClassPredicate() == null || getClassPredicate().apply(clazz)) {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -221,63 +237,14 @@ public abstract class AbstractClassScanner {
      */
     public abstract List<Class<?>> getAssignableFrom();
 
-    private Class<?> getClassForName(final String className) {
-        try {
-            return ClassUtils.classForNameWithException(className, getRootClassloader());
-        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
-            LOGGER.warn("Cannot load class file: {}, exception: {}: {}", className, e.getClass().getName(),
-                    e.getMessage());
-            return null;
-        }
-    }
-
     /**
-     * Returns a predicate which tests to see if class is a match. If this method returns null, it is
-     * assumed that the predicate always returns true.
+     * Returns a predicate which tests to see if class is a match. If this method returns null, it
+     * is assumed that the predicate always returns true.
      *
      * @return predicate which tests to see if class is a match.
      */
     @Nullable
     public abstract Predicate<Class<?>> getClassPredicate();
-
-    private ClassReader getClassReader(final JarFile jarFile, final JarEntry entry) {
-        InputStream is = null;
-        try {
-            is = jarFile.getInputStream(entry);
-            return new ClassReader(is);
-        } catch (final IOException ex) {
-            throw new RuntimeException(
-                    "Unable to read jar file: " + jarFile.getName() + ", entry: " + entry.getName(), ex);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (final IOException ex) {
-                LOGGER.error("Error closing input stream of the jar file, {}, entry, {}, closed.",
-                        jarFile.getName(), entry.getName());
-            }
-        }
-    }
-
-    private ClassReader getClassReader(final URI classFileUri) {
-        InputStream is = null;
-        try {
-            is = classFileUri.toURL().openStream();
-            return new ClassReader(is);
-        } catch (final IOException ex) {
-            throw new RuntimeException("Error accessing input stream of the class file URI, " + classFileUri,
-                    ex);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (final IOException ex) {
-                LOGGER.error("Error closing input stream of the class file URI, {}", classFileUri);
-            }
-        }
-    }
 
     /**
      * Returns a predicate which tests to see if file is a match. If this method returns null, it is
@@ -294,17 +261,6 @@ public abstract class AbstractClassScanner {
      * @return true to ignore {@link NoClassDefFoundError} when loading classes.
      */
     public abstract Optional<Boolean> getIgnoreNoClassDefFoundError();
-
-    private JarFile getJarFile(final File file) {
-        if (file == null) {
-            return null;
-        }
-        try {
-            return new JarFile(file);
-        } catch (final IOException ex) {
-            throw new RuntimeException(file.getAbsolutePath() + " is not a jar file", ex);
-        }
-    }
 
     public List<Class<?>> getMatchingClasses() {
         final List<Class<?>> result = new ArrayList<>(matchingClasses);
@@ -330,29 +286,6 @@ public abstract class AbstractClassScanner {
     @Value.Default
     public ClassLoader getRootClassloader() {
         return ClassUtils.getContextClassLoader();
-    }
-
-    private URI getURI(final URL url) throws URISyntaxException {
-        if (url.getProtocol().equalsIgnoreCase("vfsfile")) {
-            // Used with JBoss 5.x: trim prefix "vfs"
-            return new URI(url.toString().substring(3));
-        }
-        return url.toURI();
-    }
-
-    private boolean isIgnoreNoClassDefFound() {
-        return getIgnoreNoClassDefFoundError().orElse(Boolean.FALSE).booleanValue();
-    }
-
-    private void scan(final File file) {
-        if (file.isDirectory()) {
-            LOGGER.trace("Scanning: {}", file);
-            scanDirectory(file, file, true);
-        } else if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
-            scanJar(file);
-        } else {
-            LOGGER.warn("Ignoring {}, it not a directory, a jar file or a zip file", file.getAbsolutePath());
-        }
     }
 
     /**
@@ -394,8 +327,98 @@ public abstract class AbstractClassScanner {
                         ex);
             }
         }
-        LOGGER.info("Found {} matching classes and {} matching files", matchingClasses.size(),
+        LOGGER.info(
+                "Found {} matching classes and {} matching files",
+                matchingClasses.size(),
                 matchingFiles.size());
+    }
+
+    private Class<?> getClassForName(final String className) {
+        try {
+            return ClassUtils.classForNameWithException(className, getRootClassloader());
+        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
+            LOGGER.warn(
+                    "Cannot load class file: {}, exception: {}: {}",
+                    className,
+                    e.getClass().getName(),
+                    e.getMessage());
+            return null;
+        }
+    }
+
+    private ClassReader getClassReader(final JarFile jarFile, final JarEntry entry) {
+        InputStream is = null;
+        try {
+            is = jarFile.getInputStream(entry);
+            return new ClassReader(is);
+        } catch (final IOException ex) {
+            throw new RuntimeException(
+                    "Unable to read jar file: " + jarFile.getName() + ", entry: " + entry.getName(), ex);
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (final IOException ex) {
+                LOGGER.error(
+                        "Error closing input stream of the jar file, {}, entry, {}, closed.",
+                        jarFile.getName(),
+                        entry.getName());
+            }
+        }
+    }
+
+    private ClassReader getClassReader(final URI classFileUri) {
+        InputStream is = null;
+        try {
+            is = classFileUri.toURL().openStream();
+            return new ClassReader(is);
+        } catch (final IOException ex) {
+            throw new RuntimeException("Error accessing input stream of the class file URI, " + classFileUri,
+                    ex);
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (final IOException ex) {
+                LOGGER.error("Error closing input stream of the class file URI, {}", classFileUri);
+            }
+        }
+    }
+
+    private JarFile getJarFile(final File file) {
+        if (file == null) {
+            return null;
+        }
+        try {
+            return new JarFile(file);
+        } catch (final IOException ex) {
+            throw new RuntimeException(file.getAbsolutePath() + " is not a jar file", ex);
+        }
+    }
+
+    private URI getURI(final URL url) throws URISyntaxException {
+        if (url.getProtocol().equalsIgnoreCase("vfsfile")) {
+            // Used with JBoss 5.x: trim prefix "vfs"
+            return new URI(url.toString().substring(3));
+        }
+        return url.toURI();
+    }
+
+    private boolean isIgnoreNoClassDefFound() {
+        return getIgnoreNoClassDefFoundError().orElse(Boolean.FALSE).booleanValue();
+    }
+
+    private void scan(final File file) {
+        if (file.isDirectory()) {
+            LOGGER.trace("Scanning: {}", file);
+            scanDirectory(file, file, true);
+        } else if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
+            scanJar(file);
+        } else {
+            LOGGER.warn("Ignoring {}, it not a directory, a jar file or a zip file", file.getAbsolutePath());
+        }
     }
 
     private void scan(final URI uri, final String filePackageName) {
@@ -438,7 +461,10 @@ public abstract class AbstractClassScanner {
             getClassReader(jarFile, entry).accept(classFilter, 0);
         } catch (final NoClassDefFoundError e) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Skipping {} due to {}: {}", entry.getName(), e.getClass().getSimpleName(),
+                LOGGER.debug(
+                        "Skipping {} due to {}: {}",
+                        entry.getName(),
+                        e.getClass().getSimpleName(),
                         e.getMessage());
             }
             if (!isIgnoreNoClassDefFound()) {

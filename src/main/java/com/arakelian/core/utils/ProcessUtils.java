@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,8 +44,8 @@ public class ProcessUtils {
         public ProcessInfo(final ProcessBuilder builder, final O stdout, final E stderr) throws IOException {
             // sanity check
             final List<String> commands = builder.command();
-            Preconditions.checkArgument(commands != null && commands.size() != 0,
-                    "commands must be non-empty");
+            Preconditions
+                    .checkArgument(commands != null && commands.size() != 0, "commands must be non-empty");
             this.stdout = stdout;
             this.stderr = stderr;
 
@@ -153,16 +153,16 @@ public class ProcessUtils {
          * Causes the current thread to wait, if necessary, until the subprocess represented by this
          * {@code ProcessInfo} object has terminated, or the specified waiting time elapses.
          *
-         * If the subprocess has already terminated then this method returns immediately with the value
-         * {@code true}. If the process has not terminated and the timeout value is less than, or equal to,
-         * zero, then this method returns immediately with the value {@code false}.
+         * If the subprocess has already terminated then this method returns immediately with the
+         * value {@code true}. If the process has not terminated and the timeout value is less than,
+         * or equal to, zero, then this method returns immediately with the value {@code false}.
          *
          * @param timeout
          *            the maximum time to wait
          * @param unit
          *            the time unit of the {@code timeout} argument
-         * @return {@code true} if the subprocess has exited and {@code false} if the waiting time elapsed
-         *         before the subprocess has exited.
+         * @return {@code true} if the subprocess has exited and {@code false} if the waiting time
+         *         elapsed before the subprocess has exited.
          * @throws InterruptedException
          *             if the current thread is interrupted while waiting.
          * @throws NullPointerException
@@ -189,24 +189,6 @@ public class ProcessUtils {
         }
     }
 
-    private static final class StreamGobbler implements Runnable {
-        private final InputStream inputStream;
-        private final Consumer<String> consumeInputLine;
-
-        public StreamGobbler(final InputStream inputStream, final Consumer<String> consumeInputLine) {
-            this.inputStream = inputStream;
-            this.consumeInputLine = consumeInputLine;
-        }
-
-        @Override
-        public void run() {
-            // use Java 8 feature that turns BufferedReader into Stream!
-            final BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(inputStream, Charsets.UTF_8));
-            reader.lines().forEach(consumeInputLine);
-        }
-    }
-
     public static final class StringOut implements Consumer<String> {
         private final StringBuilder out;
 
@@ -228,6 +210,24 @@ public class ProcessUtils {
         }
     }
 
+    private static final class StreamGobbler implements Runnable {
+        private final InputStream inputStream;
+        private final Consumer<String> consumeInputLine;
+
+        public StreamGobbler(final InputStream inputStream, final Consumer<String> consumeInputLine) {
+            this.inputStream = inputStream;
+            this.consumeInputLine = consumeInputLine;
+        }
+
+        @Override
+        public void run() {
+            // use Java 8 feature that turns BufferedReader into Stream!
+            final BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(inputStream, Charsets.UTF_8));
+            reader.lines().forEach(consumeInputLine);
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
 
     private static final AtomicLong ID = new AtomicLong();
@@ -238,8 +238,9 @@ public class ProcessUtils {
     }
 
     public static <O extends Consumer<String>, E extends Consumer<String>> int run(
-            final ProcessBuilder builder, final O stdout, final E stderr)
-            throws IOException, InterruptedException {
+            final ProcessBuilder builder,
+            final O stdout,
+            final E stderr) throws IOException, InterruptedException {
         return start(builder, stdout, stderr).waitFor().getExitCode();
     }
 
@@ -249,7 +250,9 @@ public class ProcessUtils {
     }
 
     public static <O extends Consumer<String>, E extends Consumer<String>> ProcessInfo<O, E> start(
-            final ProcessBuilder builder, final O stdout, final E stderr) throws IOException {
+            final ProcessBuilder builder,
+            final O stdout,
+            final E stderr) throws IOException {
         return new ProcessInfo<>(builder, stdout, stderr);
     }
 

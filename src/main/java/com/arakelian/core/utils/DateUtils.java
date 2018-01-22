@@ -20,6 +20,7 @@ package com.arakelian.core.utils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -33,6 +34,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalQuery;
 import java.util.Date;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -49,6 +51,56 @@ import com.google.common.base.Preconditions;
  *      "http://time4j.net/tutorial/appendix.html">http://time4j.net/tutorial/appendix.html</a>
  **/
 public class DateUtils {
+    public enum EpochUnits {
+        MICROSECONDS(100000000000000L) {
+            @Override
+            public long toMillis(final long value) {
+                return value / 1000;
+            }
+        },
+
+        MILLISECONDS(100000000000L) {
+            @Override
+            public long toMillis(final long value) {
+                return value;
+            }
+        },
+
+        SECONDS(0) {
+            @Override
+            public long toMillis(final long value) {
+                return value * 1000;
+            }
+        };
+
+        public static EpochUnits valueOf(final long epoch) {
+            if (MICROSECONDS.isValid(epoch)) {
+                return MICROSECONDS;
+            } else if (MILLISECONDS.isValid(epoch)) {
+                return MILLISECONDS;
+            } else {
+                return SECONDS;
+            }
+        }
+
+        private final long minValue;
+
+        private EpochUnits(final long minValue) {
+            this.minValue = minValue;
+        }
+
+        public Instant toInstant(final long value) {
+            final long epochMillis = toMillis(value);
+            return Instant.ofEpochMilli(epochMillis);
+        }
+
+        public abstract long toMillis(long value);
+
+        private boolean isValid(final long epoch) {
+            return epoch >= minValue || epoch <= -minValue;
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
     /**
@@ -131,6 +183,14 @@ public class DateUtils {
             .withChronology(IsoChronology.INSTANCE) //
             .withResolverStyle(ResolverStyle.STRICT);
 
+    public static final ZoneId UTC_ZONE = ZoneId.of("Z");
+
+    private static final Random JVM_RANDOM = new Random();
+
+    public static ZonedDateTime atStartOfDay(final ZonedDateTime date) {
+        return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
+    }
+
     public static int compare(final Date d1, final Date d2) {
         if (d1 == null) {
             if (d2 != null) {
@@ -148,12 +208,6 @@ public class DateUtils {
             }
         }
         return 0;
-    }
-
-    public static int daysBetween(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-        final LocalDate first = firstDate.toLocalDate();
-        final LocalDate after = secondDate.toLocalDate();
-        return (int) ChronoUnit.DAYS.between(first, after);
     }
 
     public static boolean hasSameDate(final ZonedDateTime lhs, final ZonedDateTime rhs) {
@@ -194,12 +248,7 @@ public class DateUtils {
         if (date == null) {
             return false;
         }
-        final ZoneId zone = date.getZone();
-        if (zone == null) {
-            return false;
-        }
-        final String id = zone.getId();
-        return "Z".equals(id);
+        return UTC_ZONE.equals(date.getZone());
     }
 
     public static ZonedDateTime nowWithZoneUtc() {
@@ -230,8 +279,29 @@ public class DateUtils {
         }
     }
 
-    public static ZonedDateTime stripTime(final ZonedDateTime date) {
-        return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
+    public static ZonedDateTime randomZonedDateTimeUtc(
+            final Random random,
+            final ZonedDateTime from,
+            final ZonedDateTime to) {
+        final long begin = DateUtils.toEpochMillisUtc(from);
+        final long end = DateUtils.toEpochMillisUtc(to);
+        final long range = end - begin + 1;
+        final long epoch = begin + (long) (random.nextDouble() * range);
+        return DateUtils.toZonedDateTimeUtc(epoch, EpochUnits.MILLISECONDS);
+    }
+
+    public static ZonedDateTime randomZonedDateTimeUtc(final ZonedDateTime from, final ZonedDateTime to) {
+        return randomZonedDateTimeUtc(JVM_RANDOM, from, to);
+    }
+
+    public static long timeBetween(
+            final ZonedDateTime firstDate,
+            final ZonedDateTime secondDate,
+            final ChronoUnit units) {
+        Preconditions.checkArgument(units != null, "units must be non-null");
+        final LocalDate first = toUtc(firstDate).toLocalDate();
+        final LocalDate after = toUtc(secondDate).toLocalDate();
+        return Math.abs(units.between(first, after));
     }
 
     public static Date toDate(final Instant instant) {
@@ -253,18 +323,6 @@ public class DateUtils {
     public static long toEpochMillisUtc(final ZonedDateTime date) {
         Preconditions.checkArgument(date != null, "date must be non-null");
         return toUtc(date).toInstant().toEpochMilli();
-    }
-
-    private static Instant toInstant(final Date date) {
-        final Instant instant;
-        if (date instanceof java.sql.Date) {
-            // SQL dates do not contain time information and they throw an exception if toInstant()
-            // is called
-            instant = Instant.ofEpochMilli(date.getTime());
-        } else {
-            instant = date.toInstant();
-        }
-        return instant;
     }
 
     public static LocalDateTime toLocalDateTime(final String text) {
@@ -301,10 +359,10 @@ public class DateUtils {
      *            a zoned date/time value
      * @return the given <code>ZonedDateTime</code> in ISO format
      *
-     * @see <a
-     *      href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateOptionalTimeParser--">dateOptionalTimeParser</a>
-     * @see <a
-     *      href="https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#mapping-date-format">strict_date_optional_time</a>
+     * @see <a href=
+     *      "http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateOptionalTimeParser--">dateOptionalTimeParser</a>
+     * @see <a href=
+     *      "https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#mapping-date-format">strict_date_optional_time</a>
      */
     public static String toStringIsoFormat(final ZonedDateTime date) {
         // we convert given date to UTC timezone and output in UTC format (ends with Z)
@@ -323,6 +381,14 @@ public class DateUtils {
         return instant != null ? ZonedDateTime.ofInstant(instant, ZoneOffset.UTC) : null;
     }
 
+    public static ZonedDateTime toZonedDateTimeUtc(final int year, final Month month, final int dayOfMonth) {
+        return toZonedDateTimeUtc(LocalDate.of(year, month, dayOfMonth));
+    }
+
+    public static ZonedDateTime toZonedDateTimeUtc(final LocalDate date) {
+        return date != null ? date.atStartOfDay(UTC_ZONE) : null;
+    }
+
     /**
      * Returns a <code>ZonedDateTime</code> from the given epoch value.
      *
@@ -335,25 +401,37 @@ public class DateUtils {
      * @return a <code>ZonedDateTime</code> or null if the date is not valid
      */
     public static ZonedDateTime toZonedDateTimeUtc(final long epoch) {
-        final Instant instant;
-        if (epoch >= 100000000000000L || epoch <= -100000000000000L) {
-            // we assume timestamp is in microseconds
-            // note: the last possible date in milliseconds: November 16, 5138 9:46:39.999 AM
-            instant = Instant.ofEpochMilli(epoch / 1000);
-        } else if (epoch >= 100000000000L || epoch <= -100000000000L) {
-            // we assume timestamp is in milliseconds
-            // note: the last possible date in seconds: November 16, 5138 9:46:39 AM
-            instant = Instant.ofEpochMilli(epoch);
-        } else {
-            // we assume timestamp is in seconds
-            instant = Instant.ofEpochSecond(epoch);
-        }
-
-        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
+        final EpochUnits units = EpochUnits.valueOf(epoch);
+        return toZonedDateTimeUtc(epoch, units);
     }
 
     public static ZonedDateTime toZonedDateTimeUtc(final String text) {
         final ZonedDateTime date = parse(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
+    }
+
+    private static Instant toInstant(final Date date) {
+        final Instant instant;
+        if (date instanceof java.sql.Date) {
+            // SQL dates do not contain time information and they throw an exception if toInstant()
+            // is called
+            instant = Instant.ofEpochMilli(date.getTime());
+        } else {
+            instant = date.toInstant();
+        }
+        return instant;
+    }
+
+    /**
+     * Returns a <code>ZonedDateTime</code> from the given epoch value.
+     *
+     * @param epoch
+     *            value in milliseconds
+     * @return a <code>ZonedDateTime</code> or null if the date is not valid
+     */
+    private static ZonedDateTime toZonedDateTimeUtc(final long epochValue, final EpochUnits units) {
+        Preconditions.checkArgument(units != null, "units must be non-null");
+        final Instant instant = units.toInstant(epochValue);
+        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 }

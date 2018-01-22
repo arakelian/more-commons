@@ -101,40 +101,6 @@ public class MoreStringUtils {
 
     static final SecureRandom UUID_GENERATOR = new SecureRandom();
 
-    private static void _appendInt(final int bits, final char[] buf, final int offset) {
-        _appendShort(bits >> 16, buf, offset);
-        _appendShort(bits, buf, offset + 4);
-    }
-
-    private static void _appendShort(final int bits, final char[] buf, int offset) {
-        buf[offset] = HEX_CHARS[bits >> 12 & 0xF];
-        buf[++offset] = HEX_CHARS[bits >> 8 & 0xF];
-        buf[++offset] = HEX_CHARS[bits >> 4 & 0xF];
-        buf[++offset] = HEX_CHARS[bits & 0xF];
-    }
-
-    private static String abbreviate(final TimeUnit unit) {
-        // from Guava StopWatch.abbreviate
-        switch (unit) {
-        case NANOSECONDS:
-            return "ns";
-        case MICROSECONDS:
-            return "\u03bcs"; // μs
-        case MILLISECONDS:
-            return "ms";
-        case SECONDS:
-            return " seconds";
-        case MINUTES:
-            return " minutes";
-        case HOURS:
-            return " hours";
-        case DAYS:
-            return " days";
-        default:
-            throw new AssertionError();
-        }
-    }
-
     /**
      * Returns a {@link File} from the given filename.
      *
@@ -167,29 +133,6 @@ public class MoreStringUtils {
     public static File asFile(final String filename) {
         final String normalized = normalizeSeparators(filename);
         return normalized != null ? new File(normalized) : null;
-    }
-
-    private static TimeUnit chooseUnit(final long nanos) {
-        // from Guava StopWatch.chooseUnit
-        if (DAYS.convert(nanos, NANOSECONDS) > 0) {
-            return DAYS;
-        }
-        if (HOURS.convert(nanos, NANOSECONDS) > 0) {
-            return HOURS;
-        }
-        if (MINUTES.convert(nanos, NANOSECONDS) > 0) {
-            return MINUTES;
-        }
-        if (SECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return SECONDS;
-        }
-        if (MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return MILLISECONDS;
-        }
-        if (MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
-            return MICROSECONDS;
-        }
-        return NANOSECONDS;
     }
 
     /**
@@ -538,5 +481,62 @@ public class MoreStringUtils {
      */
     public static String uuid() {
         return toString(UUID.randomUUID());
+    }
+
+    private static void _appendInt(final int bits, final char[] buf, final int offset) {
+        _appendShort(bits >> 16, buf, offset);
+        _appendShort(bits, buf, offset + 4);
+    }
+
+    private static void _appendShort(final int bits, final char[] buf, int offset) {
+        buf[offset] = HEX_CHARS[bits >> 12 & 0xF];
+        buf[++offset] = HEX_CHARS[bits >> 8 & 0xF];
+        buf[++offset] = HEX_CHARS[bits >> 4 & 0xF];
+        buf[++offset] = HEX_CHARS[bits & 0xF];
+    }
+
+    private static String abbreviate(final TimeUnit unit) {
+        // from Guava StopWatch.abbreviate
+        switch (unit) {
+        case NANOSECONDS:
+            return "ns";
+        case MICROSECONDS:
+            return "\u03bcs"; // μs
+        case MILLISECONDS:
+            return "ms";
+        case SECONDS:
+            return " seconds";
+        case MINUTES:
+            return " minutes";
+        case HOURS:
+            return " hours";
+        case DAYS:
+            return " days";
+        default:
+            throw new AssertionError();
+        }
+    }
+
+    private static TimeUnit chooseUnit(final long nanos) {
+        // from Guava StopWatch.chooseUnit
+        if (DAYS.convert(nanos, NANOSECONDS) > 0) {
+            return DAYS;
+        }
+        if (HOURS.convert(nanos, NANOSECONDS) > 0) {
+            return HOURS;
+        }
+        if (MINUTES.convert(nanos, NANOSECONDS) > 0) {
+            return MINUTES;
+        }
+        if (SECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return SECONDS;
+        }
+        if (MILLISECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return MILLISECONDS;
+        }
+        if (MICROSECONDS.convert(nanos, NANOSECONDS) > 0) {
+            return MICROSECONDS;
+        }
+        return NANOSECONDS;
     }
 }

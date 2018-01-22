@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,91 +71,93 @@ public class MediaTypeUtils {
     static {
         // http://www.howtogeek.com/137270/50-file-extensions-that-are-potentially-dangerous-on-windows/
         DANGEROUS_EXTENSIONS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        DANGEROUS_EXTENSIONS.addAll(Sets.newHashSet( //
-                "application", //
-                "bat", //
-                "cmd", //
-                "com", //
-                "exe", //
-                "gadget", //
-                "hta", //
-                "inf", //
-                "jar", //
-                "js", //
-                "jse", //
-                "lnk", //
-                "msc", //
-                "msh", //
-                "msh1", //
-                "msh1xml", //
-                "msh2", //
-                "msh2xml", //
-                "mshxml", //
-                "msi", //
-                "msp", //
-                "pif", //
-                "ps1", //
-                "ps1xml", //
-                "ps2", //
-                "ps2xml", //
-                "psc1", //
-                "psc2", //
-                "reg", //
-                "scf", //
-                "scr", //
-                "vb", //
-                "vbe", //
-                "vbs", //
-                "ws", //
-                "wsc", //
-                "wsf", //
-                "wsh"));
+        DANGEROUS_EXTENSIONS.addAll(
+                Sets.newHashSet( //
+                        "application", //
+                        "bat", //
+                        "cmd", //
+                        "com", //
+                        "exe", //
+                        "gadget", //
+                        "hta", //
+                        "inf", //
+                        "jar", //
+                        "js", //
+                        "jse", //
+                        "lnk", //
+                        "msc", //
+                        "msh", //
+                        "msh1", //
+                        "msh1xml", //
+                        "msh2", //
+                        "msh2xml", //
+                        "mshxml", //
+                        "msi", //
+                        "msp", //
+                        "pif", //
+                        "ps1", //
+                        "ps1xml", //
+                        "ps2", //
+                        "ps2xml", //
+                        "psc1", //
+                        "psc2", //
+                        "reg", //
+                        "scf", //
+                        "scr", //
+                        "vb", //
+                        "vbe", //
+                        "vbs", //
+                        "ws", //
+                        "wsc", //
+                        "wsf", //
+                        "wsh"));
 
         // http://www.htmlhelpcentral.com/messageboard/showthread.php?17092-List-of-Dangerous-MIME-Types
         DANGEROUS_MEDIA_TYPES = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        DANGEROUS_MEDIA_TYPES.addAll(Sets.newHashSet( //
-                "application/bat", //
-                "application/bittorrent", //
-                "application/chrome-extension", //
-                "application/com", //
-                "application/download", //
-                "application/exe", //
-                "application/hta", //
-                "application/java-jnlp-file", //
-                "application/javascript", //
-                "application/ms-shortcut", //
-                "application/msdos-program", //
-                "application/msdos-windows", //
-                "application/msdownload", //
-                "application/octet-stream", //
-                "application/opera-extension", //
-                "application/redhat-package-manager", //
-                "application/shockwave-flash", //
-                "application/winexe", //
-                "application/winhelp", //
-                "application/winhlp", //
-                "application/x-bat", //
-                "application/x-bittorrent", //
-                "application/x-chrome-extension", //
-                "application/x-com", //
-                "application/x-download", //
-                "application/x-exe", //
-                "application/x-java-jnlp-file", //
-                "application/x-javascript", //
-                "application/x-ms-shortcut", //
-                "application/x-msdos-program", //
-                "application/x-msdos-windows", //
-                "application/x-msdownload", //
-                "application/x-opera-extension", //
-                "application/x-redhat-package-manager", //
-                "application/x-shockwave-flash", //
-                "application/x-winexe", //
-                "application/x-winhelp", //
-                "application/x-winhlp", //
-                "application/x-xpinstall", //
-                "text/javascript", //
-                "text/scriptlet", //
-                "vms/exe"));
+        DANGEROUS_MEDIA_TYPES.addAll(
+                Sets.newHashSet( //
+                        "application/bat", //
+                        "application/bittorrent", //
+                        "application/chrome-extension", //
+                        "application/com", //
+                        "application/download", //
+                        "application/exe", //
+                        "application/hta", //
+                        "application/java-jnlp-file", //
+                        "application/javascript", //
+                        "application/ms-shortcut", //
+                        "application/msdos-program", //
+                        "application/msdos-windows", //
+                        "application/msdownload", //
+                        "application/octet-stream", //
+                        "application/opera-extension", //
+                        "application/redhat-package-manager", //
+                        "application/shockwave-flash", //
+                        "application/winexe", //
+                        "application/winhelp", //
+                        "application/winhlp", //
+                        "application/x-bat", //
+                        "application/x-bittorrent", //
+                        "application/x-chrome-extension", //
+                        "application/x-com", //
+                        "application/x-download", //
+                        "application/x-exe", //
+                        "application/x-java-jnlp-file", //
+                        "application/x-javascript", //
+                        "application/x-ms-shortcut", //
+                        "application/x-msdos-program", //
+                        "application/x-msdos-windows", //
+                        "application/x-msdownload", //
+                        "application/x-opera-extension", //
+                        "application/x-redhat-package-manager", //
+                        "application/x-shockwave-flash", //
+                        "application/x-winexe", //
+                        "application/x-winhelp", //
+                        "application/x-winhlp", //
+                        "application/x-xpinstall", //
+                        "text/javascript", //
+                        "text/scriptlet", //
+                        "vms/exe"));
     }
 
     private static final Multimap<String, String> EXTENSION_TO_CONTENT_TYPE;
@@ -179,10 +181,10 @@ public class MediaTypeUtils {
             // RFC 2045 says: "The type, subtype, and parameter names are not case sensitive.";
             // however, we want to ensure that they're lower case in our internal maps so that we
             // match them correctly
-            Preconditions.checkState(extension.toLowerCase().equals(extension),
-                    extension + " is not lowercase");
-            Preconditions.checkState(mediaType.toLowerCase().equals(mediaType),
-                    mediaType + " is not lowercase");
+            Preconditions
+                    .checkState(extension.toLowerCase().equals(extension), extension + " is not lowercase");
+            Preconditions
+                    .checkState(mediaType.toLowerCase().equals(mediaType), mediaType + " is not lowercase");
             LOGGER.info("Mapping extension {} to {}", extension, mediaType);
             reverse.put(extension, mediaType);
         }
@@ -214,7 +216,8 @@ public class MediaTypeUtils {
         return getPrimaryExtensionOfMediaType(contentType, null);
     }
 
-    public static String getPrimaryExtensionOfMediaType(final String contentType,
+    public static String getPrimaryExtensionOfMediaType(
+            final String contentType,
             final String defaultExtension) {
         final Collection<String> extensions = getExtensionOfMediaType(contentType);
         if (extensions == null) {
@@ -225,8 +228,8 @@ public class MediaTypeUtils {
     }
 
     /**
-     * Returns the extension of the given file (including period), if the extension is considered safe,
-     * e.g. not an extension for an executable file or script language.
+     * Returns the extension of the given file (including period), if the extension is considered
+     * safe, e.g. not an extension for an executable file or script language.
      *
      * @param filename
      *            filename
@@ -248,8 +251,8 @@ public class MediaTypeUtils {
     }
 
     /**
-     * Returns true if the given extension is considered "safe"; e.g. is not associated with executable
-     * or scripting files
+     * Returns true if the given extension is considered "safe"; e.g. is not associated with
+     * executable or scripting files
      *
      * @param extension
      *            file extension

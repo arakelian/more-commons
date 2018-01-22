@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -383,7 +383,9 @@ public enum IsoCountryCode {
         CODES = Collections.unmodifiableMap(countryNames);
     }
 
-    public static IsoCountryCode findCountry(final String postalCode, final String stateOrProvince,
+    public static IsoCountryCode findCountry(
+            final String postalCode,
+            final String stateOrProvince,
             final IsoCountryCode... countries) {
         final int numCountries = countries != null ? countries.length : 0;
         if (numCountries == 0) {
@@ -455,14 +457,15 @@ public enum IsoCountryCode {
      * Address format.
      *
      * The format string is a textual template containing literal text, formatting characters and
-     * placeholders for the address fields (as identified by their one-letter abbreviations). Formatting
-     * characters and address field placeholders are prefixed by a ‘%’ character, while all other text
-     * is literal. Formatting characters (such as “%n”) and literal text are ignored for validation
-     * purposes.
+     * placeholders for the address fields (as identified by their one-letter abbreviations).
+     * Formatting characters and address field placeholders are prefixed by a ‘%’ character, while
+     * all other text is literal. Formatting characters (such as “%n”) and literal text are ignored
+     * for validation purposes.
      *
-     * For example, the US data has a "fmt" value of "%N%n%O%n%A%n%C %S %Z". This means that the allowed
-     * fields are N, O, A, C, S and Z, which according to the definitions above correspond to name,
-     * organisation, street address lines, city, administrative area and postal code respectively.
+     * For example, the US data has a "fmt" value of "%N%n%O%n%A%n%C %S %Z". This means that the
+     * allowed fields are N, O, A, C, S and Z, which according to the definitions above correspond
+     * to name, organisation, street address lines, city, administrative area and postal code
+     * respectively.
      * <ul>
      * <li>n – newline</li>
      * <li>N – Name</li>
@@ -488,14 +491,21 @@ public enum IsoCountryCode {
     /** List of state/province names (stripped of diacritics) **/
     private final ImmutableSortedSet<String> stateProvinceLatinNames;
 
-    private IsoCountryCode(final String countryName, final boolean eu, final boolean euro,
-            final String postalCodePattern, final String addressFormat, final String[] states,
-            final String[] stateNames, final String[] stateLatinNames) {
+    private IsoCountryCode(
+            final String countryName,
+            final boolean eu,
+            final boolean euro,
+            final String postalCodePattern,
+            final String addressFormat,
+            final String[] states,
+            final String[] stateNames,
+            final String[] stateLatinNames) {
         this.countryName = countryName;
         this.eu = eu;
         this.euro = euro;
         this.postalCodePattern = StringUtils.isEmpty(postalCodePattern) ? null
-                : Pattern.compile("^\\s*" + postalCodePattern + "\\s*$",
+                : Pattern.compile(
+                        "^\\s*" + postalCodePattern + "\\s*$",
                         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         this.addressFormat = addressFormat;
         this.statesProvinces = states != null

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,7 +79,9 @@ public class XmlStreamReaderUtils {
      */
     public static final int DEFAULT_COPY_FLAGS = 0;
 
-    public static void closeEmptyTag(final XMLStreamReader reader, final String namespace,
+    public static void closeEmptyTag(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         reader.nextTag();
         reader.require(XMLStreamConstants.END_ELEMENT, namespace, localName);
@@ -90,7 +92,8 @@ public class XmlStreamReaderUtils {
      * Closes an {@link XMLStreamReader}.
      *
      * <p>
-     * This method will quietly log any {@link IOException} that may occur but will otherwise ignore it.
+     * This method will quietly log any {@link IOException} that may occur but will otherwise ignore
+     * it.
      * </p>
      *
      * @param reader
@@ -139,8 +142,11 @@ public class XmlStreamReaderUtils {
         }
     }
 
-    public static void copyText(final XMLStreamReader reader, final XMLStreamWriter writer,
-            final StringBuilder textBuilder, final int flags) throws XMLStreamException {
+    public static void copyText(
+            final XMLStreamReader reader,
+            final XMLStreamWriter writer,
+            final StringBuilder textBuilder,
+            final int flags) throws XMLStreamException {
         for (int eventType = reader.getEventType();; eventType = reader.next()) {
             switch (eventType) {
             case XMLStreamConstants.COMMENT:
@@ -181,8 +187,12 @@ public class XmlStreamReaderUtils {
         }
     }
 
-    public static void copyXMLStream(final byte[] buf, final int offset, final int size,
-            final XMLStreamWriter writer, final int copyFlags) throws XMLStreamException {
+    public static void copyXMLStream(
+            final byte[] buf,
+            final int offset,
+            final int size,
+            final XMLStreamWriter writer,
+            final int copyFlags) throws XMLStreamException {
         copyXMLStream(new ByteArrayInputStream(buf, offset, size), writer, copyFlags);
     }
 
@@ -208,7 +218,9 @@ public class XmlStreamReaderUtils {
         }
     }
 
-    public static void copyXMLStream(final XMLStreamReader reader, final XMLStreamWriter writer,
+    public static void copyXMLStream(
+            final XMLStreamReader reader,
+            final XMLStreamWriter writer,
             final int flags) throws XMLStreamException {
         int depth = 0;
         // IMPORTANT: we explicitly ignore the START_DOCUMENT and END_DOCUMENT
@@ -305,15 +317,19 @@ public class XmlStreamReaderUtils {
      * @param flags
      *            the flags indicating copying options
      * @param indentParentElementText
-     *            a boolean flag indicating if what to indent before the parent element when copying to
-     *            the StringBuilder
+     *            a boolean flag indicating if what to indent before the parent element when copying
+     *            to the StringBuilder
      * @param parentElement
      *            the parent element
      * @throws XMLStreamException
      *             if there is error processing stream
      */
-    public static void copyXMLStream(final XMLStreamReader reader, final XMLStreamWriter writer,
-            final StringBuilder textBuilder, final int flags, final boolean indentParentElementText,
+    public static void copyXMLStream(
+            final XMLStreamReader reader,
+            final XMLStreamWriter writer,
+            final StringBuilder textBuilder,
+            final int flags,
+            final boolean indentParentElementText,
             final String parentElement) throws XMLStreamException {
         int depth = 0;
         // IMPORTANT: we explicitly ignore the START_DOCUMENT and END_DOCUMENT
@@ -446,8 +462,10 @@ public class XmlStreamReaderUtils {
      *            underlying cause
      * @return <code>XMLStreamException</code> with given cause
      */
-    public static XMLStreamException createXMLStreamException(final String message,
-            final XMLStreamReader reader, final Throwable cause) {
+    public static XMLStreamException createXMLStreamException(
+            final String message,
+            final XMLStreamReader reader,
+            final Throwable cause) {
         final XMLStreamException exception = new XMLStreamException(message, reader.getLocation(), null);
         exception.initCause(cause);
         return exception;
@@ -492,7 +510,9 @@ public class XmlStreamReaderUtils {
      *            String
      * @return boolean
      */
-    public static boolean isStartElement(final XMLStreamReader reader, final String namespace,
+    public static boolean isStartElement(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) {
         return reader.getEventType() == XMLStreamConstants.START_ELEMENT
                 && nameEquals(reader, namespace, localName);
@@ -509,7 +529,9 @@ public class XmlStreamReaderUtils {
      *            String
      * @return boolean
      */
-    public static boolean nameEquals(final XMLStreamReader reader, final String namespace,
+    public static boolean nameEquals(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) {
         if (!reader.getLocalName().equals(localName)) {
             return false;
@@ -525,8 +547,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a boolean. If the attribute is empty, this method returns
-     * the default value provided.
+     * Returns the value of an attribute as a boolean. If the attribute is empty, this method
+     * returns the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -536,14 +558,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static boolean optionalBooleanAttribute(final XMLStreamReader reader, final String localName,
+    public static boolean optionalBooleanAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final boolean defaultValue) {
         return optionalBooleanAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a boolean. If the attribute is empty, this method returns
-     * the default value provided.
+     * Returns the value of an attribute as a boolean. If the attribute is empty, this method
+     * returns the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -555,8 +579,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static boolean optionalBooleanAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final boolean defaultValue) {
+    public static boolean optionalBooleanAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final boolean defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return BooleanUtils.toBoolean(value);
@@ -565,8 +592,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a byte. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a byte. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -576,14 +603,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static byte optionalByteAttribute(final XMLStreamReader reader, final String localName,
+    public static byte optionalByteAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final byte defaultValue) {
         return optionalByteAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a byte. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a byte. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -595,8 +624,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static byte optionalByteAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final byte defaultValue) {
+    public static byte optionalByteAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final byte defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Byte.parseByte(value);
@@ -605,8 +637,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a Class. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a Class. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -618,14 +650,16 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if there is error processing stream
      */
-    public static Class optionalClassAttribute(final XMLStreamReader reader, final String localName,
+    public static Class optionalClassAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final Class defaultValue) throws XMLStreamException {
         return optionalClassAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a Class. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a Class. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -639,23 +673,28 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if there is error processing stream
      */
-    public static Class optionalClassAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final Class defaultValue) throws XMLStreamException {
+    public static Class optionalClassAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final Class defaultValue) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             try {
                 return Class.forName(value.toString());
             } catch (final ClassNotFoundException e) {
                 throw createXMLStreamException(
-                        MessageFormat.format("\"{0}\" is not a valid class name.", value), reader, e);
+                        MessageFormat.format("\"{0}\" is not a valid class name.", value),
+                        reader,
+                        e);
             }
         }
         return defaultValue;
     }
 
     /**
-     * Returns the value of an attribute as a double. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a double. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -665,14 +704,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static double optionalDoubleAttribute(final XMLStreamReader reader, final String localName,
+    public static double optionalDoubleAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final double defaultValue) {
         return optionalDoubleAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a double. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a double. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -684,8 +725,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static double optionalDoubleAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final double defaultValue) {
+    public static double optionalDoubleAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final double defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Double.parseDouble(value);
@@ -694,8 +738,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a float. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a float. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -705,14 +749,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static float optionalFloatAttribute(final XMLStreamReader reader, final String localName,
+    public static float optionalFloatAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final float defaultValue) {
         return optionalFloatAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a float. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a float. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -724,8 +770,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static float optionalFloatAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final float defaultValue) {
+    public static float optionalFloatAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final float defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Float.parseFloat(value);
@@ -734,8 +783,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a int. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a int. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -745,14 +794,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static int optionalIntAttribute(final XMLStreamReader reader, final String localName,
+    public static int optionalIntAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final int defaultValue) {
         return optionalIntAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a int. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a int. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -764,8 +815,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static int optionalIntAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final int defaultValue) {
+    public static int optionalIntAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final int defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Integer.parseInt(value);
@@ -774,8 +828,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a long. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a long. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -785,14 +839,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static long optionalLongAttribute(final XMLStreamReader reader, final String localName,
+    public static long optionalLongAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final long defaultValue) {
         return optionalLongAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a long. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a long. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -804,8 +860,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static long optionalLongAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final long defaultValue) {
+    public static long optionalLongAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final long defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Long.parseLong(value);
@@ -814,8 +873,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a short. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a short. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -825,14 +884,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static short optionalShortAttribute(final XMLStreamReader reader, final String localName,
+    public static short optionalShortAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final short defaultValue) {
         return optionalShortAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a short. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a short. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -844,8 +905,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static short optionalShortAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final short defaultValue) {
+    public static short optionalShortAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final short defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return Short.parseShort(value);
@@ -854,8 +918,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a String. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a String. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -865,14 +929,16 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static String optionalStringAttribute(final XMLStreamReader reader, final String localName,
+    public static String optionalStringAttribute(
+            final XMLStreamReader reader,
+            final String localName,
             final String defaultValue) {
         return optionalStringAttribute(reader, null, localName, defaultValue);
     }
 
     /**
-     * Returns the value of an attribute as a String. If the attribute is empty, this method returns the
-     * default value provided.
+     * Returns the value of an attribute as a String. If the attribute is empty, this method returns
+     * the default value provided.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -884,8 +950,11 @@ public class XmlStreamReaderUtils {
      *            default value
      * @return value of attribute, or the default value if the attribute is empty.
      */
-    public static String optionalStringAttribute(final XMLStreamReader reader, final String namespace,
-            final String localName, final String defaultValue) {
+    public static String optionalStringAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
+            final String localName,
+            final String defaultValue) {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
             return value;
@@ -912,8 +981,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a boolean. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a boolean. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -929,8 +998,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a boolean. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a boolean. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -942,7 +1011,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static boolean requiredBooleanAttribute(final XMLStreamReader reader, final String namespace,
+    public static boolean requiredBooleanAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -983,7 +1054,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static byte requiredByteAttribute(final XMLStreamReader reader, final String namespace,
+    public static byte requiredByteAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -994,8 +1067,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a Class. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a Class. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1011,8 +1084,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a Class. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a Class. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1024,7 +1097,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static Class requiredClassAttribute(final XMLStreamReader reader, final String namespace,
+    public static Class requiredClassAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1032,7 +1107,9 @@ public class XmlStreamReaderUtils {
                 return Class.forName(value.toString());
             } catch (final ClassNotFoundException e) {
                 throw createXMLStreamException(
-                        MessageFormat.format("\"{0}\" is not a valid class name.", value), reader, e);
+                        MessageFormat.format("\"{0}\" is not a valid class name.", value),
+                        reader,
+                        e);
             }
         }
         throw new XMLStreamException(
@@ -1040,8 +1117,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a double. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a double. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1057,8 +1134,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a double. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a double. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1070,7 +1147,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static double requiredDoubleAttribute(final XMLStreamReader reader, final String namespace,
+    public static double requiredDoubleAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1081,8 +1160,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a float. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a float. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1098,8 +1177,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a float. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a float. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1111,7 +1190,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static float requiredFloatAttribute(final XMLStreamReader reader, final String namespace,
+    public static float requiredFloatAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1152,7 +1233,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static int requiredIntAttribute(final XMLStreamReader reader, final String namespace,
+    public static int requiredIntAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1193,7 +1276,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static long requiredLongAttribute(final XMLStreamReader reader, final String namespace,
+    public static long requiredLongAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1204,8 +1289,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a short. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a short. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1221,8 +1306,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a short. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a short. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1234,7 +1319,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static short requiredShortAttribute(final XMLStreamReader reader, final String namespace,
+    public static short requiredShortAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {
@@ -1245,8 +1332,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a String. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a String. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1262,8 +1349,8 @@ public class XmlStreamReaderUtils {
     }
 
     /**
-     * Returns the value of an attribute as a String. If the attribute is empty, this method throws an
-     * exception.
+     * Returns the value of an attribute as a String. If the attribute is empty, this method throws
+     * an exception.
      *
      * @param reader
      *            <code>XMLStreamReader</code> that contains attribute values.
@@ -1275,7 +1362,9 @@ public class XmlStreamReaderUtils {
      * @throws XMLStreamException
      *             if attribute is empty.
      */
-    public static String requiredStringAttribute(final XMLStreamReader reader, final String namespace,
+    public static String requiredStringAttribute(
+            final XMLStreamReader reader,
+            final String namespace,
             final String localName) throws XMLStreamException {
         final String value = reader.getAttributeValue(namespace, localName);
         if (value != null) {

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,16 +35,21 @@ public class MediaTypeUtilsTest {
 
         // there are multiple extensions for each of the following content types, make sure we
         // return the "preferred" one (e.g. the one configured first)
-        assertEquals(".gif",
+        assertEquals(
+                ".gif",
                 MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.GIF.toString().toUpperCase()));
-        assertEquals(".jpg",
+        assertEquals(
+                ".jpg",
                 MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.JPEG.toString().toUpperCase()));
         assertEquals(".tif", MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.TIFF.toString()));
-        assertEquals(".doc",
+        assertEquals(
+                ".doc",
                 MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.MICROSOFT_WORD.toString()));
-        assertEquals(".xls",
+        assertEquals(
+                ".xls",
                 MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.MICROSOFT_EXCEL.toString()));
-        assertEquals(".ppt",
+        assertEquals(
+                ".ppt",
                 MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.MICROSOFT_POWERPOINT.toString()));
         assertEquals(".pdf", MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.PDF.toString()));
 

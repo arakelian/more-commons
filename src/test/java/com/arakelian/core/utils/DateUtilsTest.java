@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -32,8 +33,25 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DateUtilsTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateUtilsTest.class);
+
+    @Test
+    public void testEpochConversion() {
+        final ZonedDateTime now = DateUtils.nowWithZoneUtc();
+        final long epochMillis = now.toInstant().toEpochMilli();
+        final long epochSeconds = epochMillis / 1000;
+        final long epochNanos = epochMillis * 1000;
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochSeconds).toEpochSecond());
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochMillis).toEpochSecond());
+        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochNanos).toEpochSecond());
+        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochMillis));
+        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochNanos));
+    }
+
     @Test
     public void testIsoSerialization() {
         final ZonedDateTime expected = DateUtils.nowWithZoneUtc();
@@ -41,6 +59,12 @@ public class DateUtilsTest {
         final ZonedDateTime actual = DateUtils.toZonedDateTimeUtc(localZone.toString());
         assertEquals(expected, actual);
         verifySameZonedDateTime(expected, actual);
+    }
+
+    @Test
+    public void testIsUtc() {
+        Assert.assertTrue(DateUtils.isUtc(DateUtils.nowWithZoneUtc()));
+        Assert.assertFalse(DateUtils.isUtc(ZonedDateTime.now(ZoneId.of("America/New_York"))));
     }
 
     @Test
@@ -54,6 +78,14 @@ public class DateUtilsTest {
         // SQL date conversion is trickier because it doesn't support toInstant()
         assertEquals(nowUtc, DateUtils.toZonedDateTimeUtc(new java.sql.Date(now.getTime())));
         assertEquals(nowUtc, DateUtils.toZonedDateTimeUtc(new java.sql.Timestamp(now.getTime())));
+    }
+
+    @Test
+    public void testLocalDate() {
+        final ZonedDateTime now = DateUtils.nowWithZoneUtc();
+        final ZonedDateTime date = DateUtils
+                .toZonedDateTimeUtc(now.getYear(), now.getMonth(), now.getDayOfMonth());
+        Assert.assertEquals(DateUtils.atStartOfDay(date), date);
     }
 
     @Test
@@ -135,6 +167,33 @@ public class DateUtilsTest {
     }
 
     @Test
+    public void testRandomDate() {
+        final int fromYear = 1950;
+        final int toYear = 1960;
+
+        for (int i = 0; i < 10; i++) {
+            // generate date
+            final ZonedDateTime from = DateUtils.toZonedDateTimeUtc(fromYear, Month.JANUARY, 1);
+            final ZonedDateTime to = DateUtils.toZonedDateTimeUtc(toYear, Month.DECEMBER, 31);
+            LOGGER.debug("Generating random date between {} and {}", from, to);
+
+            final ZonedDateTime random = DateUtils.randomZonedDateTimeUtc(from, to);
+            LOGGER.debug("Random date: {}", random);
+
+            // verify random in range
+            final long fromMillis = DateUtils.toEpochMillisUtc(from);
+            final long toMillis = DateUtils.toEpochMillisUtc(to);
+            final long randomMillis = DateUtils.toEpochMillisUtc(random);
+            Assert.assertTrue(randomMillis >= fromMillis);
+            Assert.assertTrue(randomMillis <= toMillis);
+
+            // check via date API
+            Assert.assertTrue(random.getYear() >= fromYear);
+            Assert.assertTrue(random.getYear() <= toYear);
+        }
+    }
+
+    @Test
     public void testToString() {
         verifyToStringWithTrailingZeroes(
                 "2016-12-21T16:46:39.830000000Z",
@@ -157,19 +216,6 @@ public class DateUtilsTest {
         final long epochMillis = now.toInstant().toEpochMilli();
         final ZonedDateTime date = DateUtils.toZonedDateTimeUtc(epochMillis);
         assertEquals(epochMillis, date.toInstant().toEpochMilli());
-    }
-
-    @Test
-    public void testEpochConversion() {
-        final ZonedDateTime now = DateUtils.nowWithZoneUtc();
-        long epochMillis = now.toInstant().toEpochMilli();
-        long epochSeconds = epochMillis / 1000;
-        long epochNanos = epochMillis * 1000;
-        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochSeconds).toEpochSecond());
-        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochMillis).toEpochSecond());
-        assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochNanos).toEpochSecond());
-        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochMillis));
-        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochNanos));
     }
 
     @Test
@@ -220,12 +266,6 @@ public class DateUtilsTest {
         // parse date and compare
         final ZonedDateTime dateWithZoneUtc = date.withZoneSameInstant(ZoneOffset.UTC);
         verifySameZonedDateTime(dateWithZoneUtc, DateUtils.toZonedDateTimeUtc(text));
-    }
-
-    @Test
-    public void testIsUtc() {
-        Assert.assertTrue(DateUtils.isUtc(DateUtils.nowWithZoneUtc()));
-        Assert.assertFalse(DateUtils.isUtc(ZonedDateTime.now(ZoneId.of("America/New_York"))));
     }
 
     private void verifyToStringWithTrailingZeroes(final String expected, final ZonedDateTime date) {
