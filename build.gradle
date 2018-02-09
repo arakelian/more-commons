@@ -23,7 +23,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "2.0.2"
 
     // useful utilities
-    id "com.arakelian.multitool" version "1.3.0"
+    id "com.arakelian.multitool" version "1.4.0"
 }
 
 group   = 'com.arakelian'
@@ -38,6 +38,12 @@ multitool {
         'org.apache.commons'     : 'repackaged.com.arakelian.core.${prefix}org.apache.commons',
         'org.objectweb.asm'      : 'repackaged.com.arakelian.core.${prefix}org.objectweb.asm',
     ]
+    
+    proguardConfiguration {
+        keep includedescriptorclasses:true, 'class com.arakelian.** { *; }'
+
+        dontnote '**.org.apache.commons.lang3.ObjectUtils'
+    }
 }
 
 dependencies {
