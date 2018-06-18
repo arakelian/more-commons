@@ -60,6 +60,7 @@ public class ExecutorUtils {
         return newThreadFactory(clazz, null, daemon);
     }
 
+    @SuppressWarnings("OrphanedFormatString")
     public static ThreadFactory newThreadFactory(
             final Class<?> clazz,
             final String suffix,
