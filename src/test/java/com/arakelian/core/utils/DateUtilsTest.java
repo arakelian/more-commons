@@ -137,8 +137,11 @@ public class DateUtilsTest {
 
     @Test
     public void testParseValidDates() {
-        final ZonedDateTime expected = ZonedDateTime.of(2016, 9, 4, 0, 0, 0, 0, ZoneOffset.systemDefault())
-                .withZoneSameInstant(ZoneOffset.UTC);
+        final ZonedDateTime localExpected = ZonedDateTime
+                .of(2016, 9, 4, 0, 0, 0, 0, ZoneOffset.systemDefault());
+        final ZonedDateTime expected = localExpected.withZoneSameInstant(ZoneOffset.UTC);
+        verifyZonedDateTime(expected, DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localExpected));
+        verifyZonedDateTime(expected, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(localExpected));
         verifyZonedDateTime(expected, "09/04/2016");
         verifyZonedDateTime(expected, "2016/09/04");
         verifyZonedDateTime(expected, "09-04-2016");

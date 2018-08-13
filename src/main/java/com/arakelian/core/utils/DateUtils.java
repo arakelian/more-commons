@@ -160,8 +160,9 @@ public class DateUtils {
             .parseStrict() //
             .parseCaseInsensitive() //
             .optionalStart().append(DateTimeFormatter.ISO_ZONED_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE_TIME).optionalEnd() //
             .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
             .parseStrict() //
             .parseCaseInsensitive() //
             .appendPattern("[yyyy/M[M]/d[d]]") //
