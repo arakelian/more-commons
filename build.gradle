@@ -8,7 +8,7 @@ plugins {
     id 'idea'
 
     // keep dependencies up-to-date!
-    id 'com.github.ben-manes.versions' version '0.19.0'
+    id 'com.github.ben-manes.versions' version '0.20.0'
 
     // useful for creating immutable java beans
     id 'org.inferred.processors' version '1.2.15'
@@ -28,7 +28,7 @@ plugins {
 
 group   = 'com.arakelian'
 
-task wrapper(type: Wrapper) { gradleVersion = '4.8' }
+task wrapper(type: Wrapper) { gradleVersion = '4.10' }
 
 multitool {
     relocates += [
@@ -47,11 +47,11 @@ multitool {
 }
 
 dependencies {
-    processor 'org.immutables:value:2.6.1'
+    processor 'org.immutables:value:2.7.1'
 
     shadow      'com.google.guava:guava:25.1-jre'
     shadow      'commons-io:commons-io:2.6'
-    shadow      'org.apache.commons:commons-lang3:3.7'
+    shadow      'org.apache.commons:commons-lang3:3.8'
     shadow      'org.ow2.asm:asm:5.1' // ClassScanner
 
     // logging
