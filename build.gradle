@@ -11,10 +11,10 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.20.0'
 
     // useful for creating immutable java beans
-    id 'org.inferred.processors' version '1.2.15'
+    id 'org.inferred.processors' version '1.2.18'
 
     // to ensure clean code
-    id "net.ltgt.errorprone" version "0.0.14"
+    id "net.ltgt.errorprone" version "0.0.16"
 
     // for deployment to Maven Central
     id "io.codearte.nexus-staging" version "0.11.0"
@@ -49,7 +49,7 @@ multitool {
 dependencies {
     processor 'org.immutables:value:2.7.1'
 
-    shadow      'com.google.guava:guava:25.1-jre'
+    shadow      'com.google.guava:guava:26.0-jre'
     shadow      'commons-io:commons-io:2.6'
     shadow      'org.apache.commons:commons-lang3:3.8'
     shadow      'org.ow2.asm:asm:5.1' // ClassScanner
