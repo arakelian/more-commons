@@ -159,12 +159,7 @@ public class DateUtils {
     private static final DateTimeFormatter ZONED_DATE_TIME_PARSER = new DateTimeFormatterBuilder() //
             .parseStrict() //
             .parseCaseInsensitive() //
-            .optionalStart().append(DateTimeFormatter.ISO_ZONED_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
-            .parseStrict() //
-            .parseCaseInsensitive() //
+            .appendPattern("[yyyy-MM-dd'T'HH:mm:ss.SSSZZZ]") //
             .appendPattern("[yyyy/M[M]/d[d]]") //
             .appendPattern("[yyyyMMdd]") //
             .appendPattern("[yyyyMMMdd]") //
@@ -173,12 +168,22 @@ public class DateUtils {
             .appendPattern("[M[M].d[d].yyyy]") //
             .appendPattern("[MMM-d[d]-yyyy]") //
             .appendPattern("[d[d]-MMM-yyyy]") //
+            .appendPattern("[d[d]-MMM-yy]") //
             .appendPattern("[MMM d[d][,] yyyy]") //
             .appendPattern("[MMMM d[d][,] yyyy]") //
+            .appendPattern("[d[d] MMM[','] yyyy]") //
+            .optionalStart().append(DateTimeFormatter.ISO_ZONED_DATE_TIME).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_OFFSET_DATE_TIME).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE_TIME).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_OFFSET_DATE).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.RFC_1123_DATE_TIME).optionalEnd() //
+            .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd() //
             .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) //
             .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0) //
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
-            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
+            .parseDefaulting(ChronoField.NANO_OF_SECOND, 0) //
             .parseDefaulting(ChronoField.ERA, 1) // AD
             .toFormatter() //
             .withChronology(IsoChronology.INSTANCE) //
@@ -260,6 +265,20 @@ public class DateUtils {
             final String text,
             final ZoneId zoneIfNotSpecified,
             final TemporalQuery<T> query) {
+        try {
+            final T date = parseChecked(text, zoneIfNotSpecified, query);
+            return date;
+        } catch (final DateTimeParseException e2) {
+            // invalid dates are treated as nulls
+            LOGGER.trace("{}", e2.getMessage());
+            return null;
+        }
+    }
+
+    public static <T> T parseChecked(
+            final String text,
+            final ZoneId zoneIfNotSpecified,
+            final TemporalQuery<T> query) throws DateTimeParseException {
         if (text == null) {
             return null;
         }
@@ -268,15 +287,9 @@ public class DateUtils {
             final T date = ZONED_DATE_TIME_PARSER.parse(text, query);
             return date;
         } catch (final DateTimeParseException e1) {
-            try {
-                // try with system timezone
-                final T date = ZONED_DATE_TIME_PARSER.withZone(zoneIfNotSpecified).parse(text, query);
-                return date;
-            } catch (final DateTimeParseException e2) {
-                // invalid dates are treated as nulls
-                LOGGER.trace("{}", e2.getMessage());
-                return null;
-            }
+            // try with system timezone
+            final T date = ZONED_DATE_TIME_PARSER.withZone(zoneIfNotSpecified).parse(text, query);
+            return date;
         }
     }
 
@@ -328,6 +341,10 @@ public class DateUtils {
 
     public static LocalDateTime toLocalDateTime(final String text) {
         return parse(text, ZoneOffset.systemDefault(), LocalDateTime::from);
+    }
+
+    public static LocalDateTime toLocalDateTimeChecked(final String text) throws DateTimeParseException {
+        return parseChecked(text, ZoneOffset.systemDefault(), LocalDateTime::from);
     }
 
     public static long toNanos(final int millis) {
@@ -408,6 +425,11 @@ public class DateUtils {
 
     public static ZonedDateTime toZonedDateTimeUtc(final String text) {
         final ZonedDateTime date = parse(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
+        return date != null ? toUtc(date) : null;
+    }
+
+    public static ZonedDateTime toZonedDateTimeUtcChecked(final String text) throws DateTimeParseException {
+        final ZonedDateTime date = parseChecked(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
     }
 

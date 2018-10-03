@@ -111,6 +111,7 @@ public class DateUtilsTest {
         assertNull(DateUtils.toZonedDateTimeUtc("abc"));
         assertNull(DateUtils.toZonedDateTimeUtc("2016-x-2"));
         assertNull(DateUtils.toZonedDateTimeUtc("2016-88-2"));
+        assertNull(DateUtils.toZonedDateTimeUtc("1997-02-29T05:00.00.000Z"));
     }
 
     @Test
@@ -140,25 +141,33 @@ public class DateUtilsTest {
         final ZonedDateTime localExpected = ZonedDateTime
                 .of(2016, 9, 4, 0, 0, 0, 0, ZoneOffset.systemDefault());
         final ZonedDateTime expected = localExpected.withZoneSameInstant(ZoneOffset.UTC);
-        verifyZonedDateTime(expected, DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localExpected));
-        verifyZonedDateTime(expected, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(localExpected));
-        verifyZonedDateTime(expected, "09/04/2016");
-        verifyZonedDateTime(expected, "2016/09/04");
-        verifyZonedDateTime(expected, "09-04-2016");
-        verifyZonedDateTime(expected, "2016-09-04");
-        verifyZonedDateTime(expected, "20160904");
-        verifyZonedDateTime(expected, "2016sep04");
-        verifyZonedDateTime(expected, "sep 4 2016");
-        verifyZonedDateTime(expected, "sep 4, 2016");
-        verifyZonedDateTime(expected, "sep 04 2016");
-        verifyZonedDateTime(expected, "sep 04, 2016");
-        verifyZonedDateTime(expected, "september 4 2016");
-        verifyZonedDateTime(expected, "september 4, 2016");
-        verifyZonedDateTime(expected, "september 04 2016");
-        verifyZonedDateTime(expected, "september 04, 2016");
+        assertDateEquals(expected, DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localExpected));
+        assertDateEquals(expected, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(localExpected));
+        assertDateEquals(expected, "09/04/2016");
+        assertDateEquals(expected, "2016/09/04");
+        assertDateEquals(expected, "09-04-2016");
+        assertDateEquals(expected, "2016-09-04");
+        assertDateEquals(expected, "20160904");
+        assertDateEquals(expected, "2016sep04");
+        assertDateEquals(expected, "sep 4 2016");
+        assertDateEquals(expected, "sep 4, 2016");
+        assertDateEquals(expected, "sep 04 2016");
+        assertDateEquals(expected, "sep 04, 2016");
+        assertDateEquals(expected, "september 4 2016");
+        assertDateEquals(expected, "september 4, 2016");
+        assertDateEquals(expected, "september 04 2016");
+        assertDateEquals(expected, "september 04, 2016");
+        assertDateEquals(expected, "4 sep 2016");
+        assertDateEquals(expected, "4 sep, 2016");
+        assertDateEquals(expected, "04 sep 2016");
+        assertDateEquals(expected, "04 sep, 2016");
+        assertDateEquals(expected, "04-sep-2016");
+        assertDateEquals(expected, "04-sep-16");
 
         // test some other dates
-        assertNotNull(DateUtils.toZonedDateTimeUtc("2016-09-04"));
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2016-09-04"));
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622"));
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622+0000"));
     }
 
     @Test
@@ -279,8 +288,8 @@ public class DateUtilsTest {
         assertNotEquals(expected, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date));
     }
 
-    private void verifyZonedDateTime(final ZonedDateTime dt, final String dateString) {
-        final ZonedDateTime date = DateUtils.toZonedDateTimeUtc(dateString);
-        assertEquals(dt, date);
+    private void assertDateEquals(final ZonedDateTime expected, final String dateString) {
+        final ZonedDateTime date = DateUtils.toZonedDateTimeUtcChecked(dateString);
+        assertEquals(expected, date);
     }
 }

@@ -23,12 +23,12 @@ plugins {
     id "com.github.johnrengelman.shadow" version "2.0.4"
 
     // useful utilities
-    id "com.arakelian.multitool" version "1.4.2"
+    id "com.arakelian.multitool" version "1.5.2"
 }
 
 group   = 'com.arakelian'
 
-task wrapper(type: Wrapper) { gradleVersion = '4.10' }
+task wrapper(type: Wrapper) { gradleVersion = '4.10.2' }
 
 multitool {
     relocates += [
@@ -48,10 +48,13 @@ multitool {
 
 dependencies {
     processor 'org.immutables:value:2.7.1'
+    
+    // the gradle plugin uses latest.release which breaks reproducibility
+    errorprone 'com.google.errorprone:error_prone_core:2.3.1'
 
     shadow      'com.google.guava:guava:26.0-jre'
     shadow      'commons-io:commons-io:2.6'
-    shadow      'org.apache.commons:commons-lang3:3.8'
+    shadow      'org.apache.commons:commons-lang3:3.8.1'
     shadow      'org.ow2.asm:asm:5.1' // ClassScanner
 
     // logging
