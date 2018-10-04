@@ -17,6 +17,21 @@
 
 package com.arakelian.core.utils;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE;
+import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static java.time.format.TextStyle.FULL;
+import static java.time.format.TextStyle.SHORT;
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
+import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import static java.time.temporal.ChronoField.YEAR;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,12 +45,14 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.time.format.SignStyle;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalQuery;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,6 +69,8 @@ import com.google.common.base.Preconditions;
  *      "http://time4j.net/tutorial/appendix.html">http://time4j.net/tutorial/appendix.html</a>
  **/
 public class DateUtils {
+    private static final String SLASH = "/";
+
     public enum EpochUnits {
         MICROSECONDS(100000000000000L) {
             @Override
@@ -102,6 +121,12 @@ public class DateUtils {
         }
     }
 
+    private static final String DASH = "-";
+
+    private static final String SPACE = " ";
+
+    private static final String COMMA = ", ";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtils.class);
 
     /**
@@ -132,8 +157,17 @@ public class DateUtils {
     /** Number of milliseconds per day **/
     private static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 
-    /** Thread-safe date only **/
-    public static final DateTimeFormatter MM_DD_YYYY = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    /** Thread-safe time only **/
+    private static final DateTimeFormatter TIME = build(
+            builder -> builder //
+                    .appendValue(HOUR_OF_DAY, 2) //
+                    .appendLiteral(':') //
+                    .appendValue(MINUTE_OF_HOUR, 2) //
+                    .optionalStart() //
+                    .appendLiteral(':') //
+                    .appendValue(SECOND_OF_MINUTE, 2) //
+                    .optionalStart() //
+                    .appendFraction(NANO_OF_SECOND, 0, 9, true));
 
     /** Thread-safe Date with time (without seconds) **/
     public static final DateTimeFormatter MMDDYYYY_HHMM = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a");
@@ -157,38 +191,75 @@ public class DateUtils {
     /** Thread-safe HH:MM am/pm */
     public static final DateTimeFormatter H_MM_ampm = DateTimeFormatter.ofPattern("h:mma");
 
-    private static final DateTimeFormatter ZONED_DATE_TIME_PARSER = new DateTimeFormatterBuilder() //
-            .parseStrict() //
-            .parseCaseInsensitive() //
-            .appendPattern("[yyyy-MM-dd'T'HH:mm:ss.SSSZZZ]") //
-            .appendPattern("[yyyy/M[M]/d[d]]") //
-            .appendPattern("[yyyyMMdd]") //
-            .appendPattern("[yyyyMMMdd]") //
-            .appendPattern("[M[M]/d[d]/yyyy]") //
-            .appendPattern("[M[M]-d[d]-yyyy]") //
-            .appendPattern("[M[M].d[d].yyyy]") //
-            .appendPattern("[MMM-d[d]-yyyy]") //
-            .appendPattern("[d[d]-MMM-yyyy]") //
-            .appendPattern("[d[d]-MMM-yy]") //
-            .appendPattern("[MMM d[d][,] yyyy]") //
-            .appendPattern("[MMMM d[d][,] yyyy]") //
-            .appendPattern("[d[d] MMM[','] yyyy]") //
-            .optionalStart().append(DateTimeFormatter.ISO_ZONED_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_OFFSET_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_DATE).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_OFFSET_DATE).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_LOCAL_DATE).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.RFC_1123_DATE_TIME).optionalEnd() //
-            .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd() //
-            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) //
-            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0) //
-            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
-            .parseDefaulting(ChronoField.NANO_OF_SECOND, 0) //
-            .parseDefaulting(ChronoField.ERA, 1) // AD
-            .toFormatter() //
-            .withChronology(IsoChronology.INSTANCE) //
-            .withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter ZONED_DATE_TIME_PARSER = build( //
+            builder -> builder //
+                    .appendPattern("[uuuu-MM-dd'T'HH:mm:ss.SSSZZZ]") //
+
+                    // more forgiving than ISO_ZONED_DATE_TIME, so listed first
+                    .optionalStart().append(yearMonthDay(null, DASH, DASH, 4, true)).optionalEnd() //
+
+                    // all of ISO stuff uses hyphens as separators; before adding another,
+                    // check if it is extended by a pattern listed here
+                    .optionalStart().append(ISO_ZONED_DATE_TIME).optionalEnd() //
+                    .optionalStart().append(ISO_LOCAL_DATE_TIME).optionalEnd() //
+                    .optionalStart().append(ISO_DATE).optionalEnd() //
+                    .optionalStart().append(ISO_OFFSET_DATE).optionalEnd() //
+                    .optionalStart().append(RFC_1123_DATE_TIME).optionalEnd() //
+
+                    // month number + day + 4 digit year
+                    .optionalStart().append(monthDayYear(null, SLASH, SLASH, 4, true)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, SLASH, SLASH, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, DASH, DASH, 4, true)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, DASH, DASH, 4, false)).optionalEnd() //
+
+                    // 4 digit year + month + day
+                    .optionalStart().append(yearMonthDay(null, SLASH, SLASH, 4, true)).optionalEnd() //
+                    .optionalStart().append(yearMonthDay(null, SLASH, SLASH, 4, false)).optionalEnd() //
+                    .optionalStart().append(yearMonthDay(FULL, "", "", 4, false)).optionalEnd() //
+                    .optionalStart().append(yearMonthDay(SHORT, "", "", 4, false)).optionalEnd() //
+
+                    // day + month name + 4 digit year
+                    .optionalStart().append(dayMonthYear(FULL, DASH, DASH, 4)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(FULL, SPACE, SPACE, 4)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(FULL, SPACE, COMMA, 4)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, DASH, DASH, 4)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, SPACE, SPACE, 4)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, SPACE, COMMA, 4)).optionalEnd() //
+
+                    // month name + day + 4 digit year
+                    .optionalStart().append(monthDayYear(FULL, DASH, DASH, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(FULL, SPACE, SPACE, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(FULL, SPACE, COMMA, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, DASH, DASH, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, SPACE, SPACE, 4, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, SPACE, COMMA, 4, false)).optionalEnd() //
+
+                    // month number + day + 2 digit year
+                    .optionalStart().append(monthDayYear(null, SLASH, SLASH, 2, true)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, SLASH, SLASH, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, DASH, DASH, 2, true)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(null, DASH, DASH, 2, false)).optionalEnd() //
+
+                    // day + month name + 2 digit year
+                    .optionalStart().append(dayMonthYear(FULL, DASH, DASH, 2)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(FULL, SPACE, SPACE, 2)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(FULL, SPACE, COMMA, 2)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, DASH, DASH, 2)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, SPACE, SPACE, 2)).optionalEnd() //
+                    .optionalStart().append(dayMonthYear(SHORT, SPACE, COMMA, 2)).optionalEnd() //
+
+                    // month name + day + 2 digit year
+                    .optionalStart().append(monthDayYear(null, DASH, DASH, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(FULL, DASH, DASH, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(FULL, SPACE, SPACE, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(FULL, SPACE, COMMA, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, DASH, DASH, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, SPACE, SPACE, 2, false)).optionalEnd() //
+                    .optionalStart().append(monthDayYear(SHORT, SPACE, COMMA, 2, false)).optionalEnd() //
+
+                    // as a last resort, parse numbers
+                    .appendPattern("[uuuuMMdd]") //
+                    .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd());
 
     public static final ZoneId UTC_ZONE = ZoneId.of("Z");
 
@@ -196,6 +267,96 @@ public class DateUtils {
 
     public static ZonedDateTime atStartOfDay(final ZonedDateTime date) {
         return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
+    }
+
+    public static DateTimeFormatter dayMonthYear(
+            final TextStyle monthStyle,
+            final String daySeparator,
+            final String monthSeparator,
+            final int yearDigits) {
+        return build(builder -> {
+            builder.appendValue(DAY_OF_MONTH);
+            builder.appendLiteral(daySeparator);
+
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            if (yearDigits == 2) {
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+        });
+    }
+
+    public static DateTimeFormatter monthDayYear(
+            final TextStyle monthStyle,
+            final String monthSeparator,
+            final String daySeparator,
+            final int yearDigits,
+            boolean time) {
+
+        return build(builder -> {
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            builder.appendValue(DAY_OF_MONTH);
+            builder.appendLiteral(daySeparator);
+
+            if (yearDigits == 2) {
+                // follows 80-20 rule
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+
+            if (time) {
+                builder.appendLiteral(' ').append(TIME);
+            }
+        });
+    }
+
+    public static DateTimeFormatter yearMonthDay(
+            final TextStyle monthStyle,
+            final String yearSeparator,
+            final String monthSeparator,
+            final int yearDigits,
+            boolean time) {
+        return build(builder -> {
+            if (yearDigits == 2) {
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+            builder.appendLiteral(yearSeparator);
+
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            builder.appendValue(DAY_OF_MONTH);
+
+            if (time) {
+                builder.appendLiteral(' ').append(TIME);
+            }
+        });
     }
 
     public static int compare(final Date d1, final Date d2) {
@@ -432,6 +593,24 @@ public class DateUtils {
     public static ZonedDateTime toZonedDateTimeUtcChecked(final String text) throws DateTimeParseException {
         final ZonedDateTime date = parseChecked(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
+    }
+
+    private static DateTimeFormatter build(final Consumer<DateTimeFormatterBuilder> consumer) {
+        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder() //
+                .parseStrict() //
+                .parseCaseInsensitive();
+
+        consumer.accept(builder);
+
+        return builder //
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) //
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0) //
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
+                .parseDefaulting(ChronoField.NANO_OF_SECOND, 0) //
+                .parseDefaulting(ChronoField.ERA, 1) //
+                .toFormatter() //
+                .withChronology(IsoChronology.INSTANCE) //
+                .withResolverStyle(ResolverStyle.STRICT);
     }
 
     private static Instant toInstant(final Date date) {

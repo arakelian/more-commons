@@ -39,6 +39,22 @@ import org.slf4j.LoggerFactory;
 public class DateUtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtilsTest.class);
 
+    private static final ZonedDateTime SAMPLE_LOCAL = ZonedDateTime
+            .of(2016, 9, 4, 0, 0, 0, 0, ZoneOffset.systemDefault());
+
+    private static final ZonedDateTime SAMPLE_UTC = SAMPLE_LOCAL //
+            .withZoneSameInstant(ZoneOffset.UTC);
+
+    @Test
+    public void testDayWIthMonthNameWithYear() {
+        assertZdtEquals(SAMPLE_UTC, "4 sep 2016");
+        assertZdtEquals(SAMPLE_UTC, "4 sep, 2016");
+        assertZdtEquals(SAMPLE_UTC, "04 sep 2016");
+        assertZdtEquals(SAMPLE_UTC, "04 sep, 2016");
+        assertZdtEquals(SAMPLE_UTC, "04-sep-2016");
+        assertZdtEquals(SAMPLE_UTC, "04-sep-16");
+    }
+
     @Test
     public void testEpochConversion() {
         final ZonedDateTime now = DateUtils.nowWithZoneUtc();
@@ -53,12 +69,65 @@ public class DateUtilsTest {
     }
 
     @Test
+    public void testFourDigitYearWithTwoDigitMonthDay() {
+        // slashes
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04");
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04 00:00");
+
+        // hyphens
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04");
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "2016-09-04 00:00");
+    }
+
+    @Test
+    public void testFullMonthWithDayYear() {
+        assertZdtEquals(SAMPLE_UTC, "september 4 2016");
+        assertZdtEquals(SAMPLE_UTC, "september 4, 2016");
+        assertZdtEquals(SAMPLE_UTC, "september 04 2016");
+        assertZdtEquals(SAMPLE_UTC, "september 04, 2016");
+    }
+
+    @Test
+    public void testInvalidDates() {
+        assertLdtEquals(null, "20030235");
+        assertLdtEquals(null, "20030234");
+        assertLdtEquals(null, "2003-02-33");
+        assertLdtEquals(null, "2003/02/32");
+        assertLdtEquals(null, "2003-02-31");
+        assertLdtEquals(null, "2003/02/30");
+        assertLdtEquals(null, "20030229");
+        assertLdtEquals(null, "2003-02-29");
+        assertLdtEquals(null, "Feb-29-2003");
+        assertLdtEquals(null, "February 29, 2003");
+        assertLdtEquals(null, "February 29 2003");
+        assertLdtEquals(null, "2/29/2003");
+        assertLdtEquals(null, "02/29/2003");
+
+        // bad dates should return null
+        assertNull(DateUtils.toZonedDateTimeUtc((String) null));
+        assertNull(DateUtils.toZonedDateTimeUtc(""));
+        assertNull(DateUtils.toZonedDateTimeUtc(" "));
+        assertNull(DateUtils.toZonedDateTimeUtc("abc"));
+        assertNull(DateUtils.toZonedDateTimeUtc("2016-x-2"));
+        assertNull(DateUtils.toZonedDateTimeUtc("2016-88-2"));
+        assertNull(DateUtils.toZonedDateTimeUtc("1997-02-29T05:00.00.000Z"));
+    }
+
+    @Test
     public void testIsoSerialization() {
         final ZonedDateTime expected = DateUtils.nowWithZoneUtc();
         final ZonedDateTime localZone = expected.withZoneSameInstant(ZoneId.of("America/New_York"));
-        final ZonedDateTime actual = DateUtils.toZonedDateTimeUtc(localZone.toString());
+        final ZonedDateTime actual = DateUtils.toZonedDateTimeUtcChecked(localZone.toString());
         assertEquals(expected, actual);
-        verifySameZonedDateTime(expected, actual);
+        assertSameZdt(expected, actual);
     }
 
     @Test
@@ -89,51 +158,25 @@ public class DateUtilsTest {
     }
 
     @Test
-    public void testParseInvalidDates() {
-        assertLdtEquals(null, "20030235");
-        assertLdtEquals(null, "20030234");
-        assertLdtEquals(null, "2003-02-33");
-        assertLdtEquals(null, "2003/02/32");
-        assertLdtEquals(null, "2003-02-31");
-        assertLdtEquals(null, "2003/02/30");
-        assertLdtEquals(null, "20030229");
-        assertLdtEquals(null, "2003-02-29");
-        assertLdtEquals(null, "Feb-29-2003");
-        assertLdtEquals(null, "February 29, 2003");
-        assertLdtEquals(null, "February 29 2003");
-        assertLdtEquals(null, "2/29/2003");
-        assertLdtEquals(null, "02/29/2003");
-
-        // bad dates should return null
-        assertNull(DateUtils.toZonedDateTimeUtc((String) null));
-        assertNull(DateUtils.toZonedDateTimeUtc(""));
-        assertNull(DateUtils.toZonedDateTimeUtc(" "));
-        assertNull(DateUtils.toZonedDateTimeUtc("abc"));
-        assertNull(DateUtils.toZonedDateTimeUtc("2016-x-2"));
-        assertNull(DateUtils.toZonedDateTimeUtc("2016-88-2"));
-        assertNull(DateUtils.toZonedDateTimeUtc("1997-02-29T05:00.00.000Z"));
-    }
-
-    @Test
-    public void testParseMillis() {
-        verifySameZonedDateTime(
+    public void testMillis() {
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 0, 000000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46Z"));
-        verifySameZonedDateTime(
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46Z"));
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39Z"));
-        verifySameZonedDateTime(
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46:39Z"));
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 830000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.830Z"));
-        verifySameZonedDateTime(
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46:39.830Z"));
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 810000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.810Z"));
-        verifySameZonedDateTime(
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46:39.810Z"));
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 000000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.000Z"));
-        verifySameZonedDateTime(
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46:39.000Z"));
+        assertSameZdt(
                 ZonedDateTime.of(2016, 12, 21, 16, 46, 39, 999000000, ZoneOffset.UTC),
-                DateUtils.toZonedDateTimeUtc("2016-12-21T16:46:39.999Z"));
+                DateUtils.toZonedDateTimeUtcChecked("2016-12-21T16:46:39.999Z"));
     }
 
     @Test
@@ -153,43 +196,47 @@ public class DateUtilsTest {
     }
 
     @Test
-    public void testParseValidDates() {
-        final ZonedDateTime localExpected = ZonedDateTime
-                .of(2016, 9, 4, 0, 0, 0, 0, ZoneOffset.systemDefault());
-        final ZonedDateTime expected = localExpected.withZoneSameInstant(ZoneOffset.UTC);
-        assertZdtEquals(expected, DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localExpected));
-        assertZdtEquals(expected, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(localExpected));
-        assertZdtEquals(expected, "09/04/2016");
-        assertZdtEquals(expected, "2016/09/04");
-        assertZdtEquals(expected, "09-04-2016");
-        assertZdtEquals(expected, "2016-09-04");
-        assertZdtEquals(expected, "20160904");
-        assertZdtEquals(expected, "2016sep04");
-        assertZdtEquals(expected, "sep 4 2016");
-        assertZdtEquals(expected, "sep 4, 2016");
-        assertZdtEquals(expected, "sep 04 2016");
-        assertZdtEquals(expected, "sep 04, 2016");
-        assertZdtEquals(expected, "september 4 2016");
-        assertZdtEquals(expected, "september 4, 2016");
-        assertZdtEquals(expected, "september 04 2016");
-        assertZdtEquals(expected, "september 04, 2016");
-        assertZdtEquals(expected, "4 sep 2016");
-        assertZdtEquals(expected, "4 sep, 2016");
-        assertZdtEquals(expected, "04 sep 2016");
-        assertZdtEquals(expected, "04 sep, 2016");
-        assertZdtEquals(expected, "04-sep-2016");
-        assertZdtEquals(expected, "04-sep-16");
+    public void testOneDigitMonthDayWithFourDigitYear() {
+        // slashes
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "9/4/2016");
 
-        // test some other dates
-        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2016-09-04"));
-        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622"));
-        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622+0000"));
+        // hyphens
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "9-4-2016");
+    }
+
+    @Test
+    public void testOneDigitMonthWithTwoDigitDayWithFourDigitYear() {
+        // slashes
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "9/04/2016");
+
+        // hyphens
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "9-04-2016");
     }
 
     @Test
     public void testPreserveTimezone() {
         final String expected = "2016-12-21T16:46:39.830000000Z";
-        final ZonedDateTime date = DateUtils.toZonedDateTimeUtc(expected);
+        final ZonedDateTime date = DateUtils.toZonedDateTimeUtcChecked(expected);
         assertEquals(expected, DateUtils.toStringIsoFormat(date));
         assertEquals(expected, DateUtils.toStringIsoFormat(expected));
     }
@@ -222,6 +269,14 @@ public class DateUtilsTest {
     }
 
     @Test
+    public void testShortMonthWithDayYear() {
+        assertZdtEquals(SAMPLE_UTC, "sep 4 2016");
+        assertZdtEquals(SAMPLE_UTC, "sep 4, 2016");
+        assertZdtEquals(SAMPLE_UTC, "sep 04 2016");
+        assertZdtEquals(SAMPLE_UTC, "sep 04, 2016");
+    }
+
+    @Test
     public void testToString() {
         verifyToStringWithTrailingZeroes(
                 "2016-12-21T16:46:39.830000000Z",
@@ -237,6 +292,44 @@ public class DateUtilsTest {
     }
 
     @Test
+    public void testTwoDigitMonthDayWithFourDigitYear() {
+        // slashes
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "09/04/2016");
+
+        // hyphens
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016 00:00");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016");
+    }
+
+    @Test
+    public void testTwoDigitMonthDayYear() {
+        // slashes
+        assertZdtEquals(SAMPLE_UTC, "09/04/16 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "09/04/16 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "09/04/16 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "09/04/16 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "09/04/16 00:00");
+        assertZdtEquals(SAMPLE_UTC, "09/04/16");
+
+        // hyphens
+        assertZdtEquals(SAMPLE_UTC, "09-04-16 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "09-04-16 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "09-04-16 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "09-04-16 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "09-04-16 00:00");
+        assertZdtEquals(SAMPLE_UTC, "09-04-16");
+    }
+
+    @Test
     public void testUtcEpochConversion() {
         final ZonedDateTime now = DateUtils.nowWithZoneUtc();
 
@@ -249,8 +342,8 @@ public class DateUtilsTest {
     @Test
     public void testUtcSerialization() {
         final ZonedDateTime expected = DateUtils.nowWithZoneUtc();
-        final ZonedDateTime actual = DateUtils.toZonedDateTimeUtc(expected.toString());
-        verifySameZonedDateTime(expected, actual);
+        final ZonedDateTime actual = DateUtils.toZonedDateTimeUtcChecked(expected.toString());
+        assertSameZdt(expected, actual);
     }
 
     @Test
@@ -258,6 +351,32 @@ public class DateUtilsTest {
         final ZonedDateTime now = DateUtils.nowWithZoneUtc();
         verifyToStringIsoUtc(now);
         verifyToStringIsoUtc(now.withZoneSameInstant(ZoneId.of("America/New_York")));
+    }
+
+    @Test
+    public void testValidDates() {
+        assertZdtEquals(SAMPLE_UTC, DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(SAMPLE_LOCAL));
+        assertZdtEquals(SAMPLE_UTC, DateTimeFormatter.ISO_ZONED_DATE_TIME.format(SAMPLE_LOCAL));
+
+        assertZdtEquals(SAMPLE_UTC, "2016/09/04");
+        assertZdtEquals(SAMPLE_UTC, "09-04-2016");
+        assertZdtEquals(SAMPLE_UTC, "20160904");
+        assertZdtEquals(SAMPLE_UTC, "2016sep04");
+
+        // test some other dates
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2016-09-04"));
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622"));
+        assertNotNull(DateUtils.toZonedDateTimeUtcChecked("2018-08-31T14:16:49.622+0000"));
+    }
+
+    @Test
+    public void twoOneDigitMonthDayWithTwoDigitYear() {
+        assertZdtEquals(SAMPLE_UTC, "9/4/16");
+        assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00.000000000");
+        assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00.000");
+        assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00.0");
+        assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00");
+        assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00");
     }
 
     private void assertLdtEquals(final LocalDateTime expected, final String dateString) {
@@ -270,17 +389,7 @@ public class DateUtilsTest {
         assertEquals(expected, date);
     }
 
-    private void assertZdtEquals(final ZonedDateTime expected, final String dateString) {
-        final ZonedDateTime date;
-        if (expected != null) {
-            date = DateUtils.toZonedDateTimeUtcChecked(dateString);
-        } else {
-            date = DateUtils.toZonedDateTimeUtc(dateString);
-        }
-        assertEquals(expected, date);
-    }
-
-    private void verifySameZonedDateTime(final ZonedDateTime expected, final ZonedDateTime actual) {
+    private void assertSameZdt(final ZonedDateTime expected, final ZonedDateTime actual) {
         assertNotNull(expected);
         assertNotNull(actual);
         assertEquals(expected.getMonth(), actual.getMonth());
@@ -291,6 +400,17 @@ public class DateUtilsTest {
         assertEquals(expected.getSecond(), actual.getSecond());
         assertEquals(expected.getNano(), actual.getNano());
         assertEquals(expected.getZone(), actual.getZone());
+    }
+
+    private void assertZdtEquals(final ZonedDateTime expected, final String dateString) {
+        final ZonedDateTime date;
+        if (expected != null) {
+            date = DateUtils.toZonedDateTimeUtcChecked(dateString);
+        } else {
+            date = DateUtils.toZonedDateTimeUtc(dateString);
+        }
+        assertSameZdt(expected, date);
+        assertEquals(expected, date);
     }
 
     private void verifyToStringIsoUtc(final ZonedDateTime now) {
@@ -308,7 +428,7 @@ public class DateUtilsTest {
 
         // parse date and compare
         final ZonedDateTime dateWithZoneUtc = date.withZoneSameInstant(ZoneOffset.UTC);
-        verifySameZonedDateTime(dateWithZoneUtc, DateUtils.toZonedDateTimeUtc(text));
+        assertSameZdt(dateWithZoneUtc, DateUtils.toZonedDateTimeUtcChecked(text));
     }
 
     private void verifyToStringWithTrailingZeroes(final String expected, final ZonedDateTime date) {
