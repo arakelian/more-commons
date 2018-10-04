@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,7 +280,7 @@ public class DateUtils {
             final String text,
             final ZoneId zoneIfNotSpecified,
             final TemporalQuery<T> query) throws DateTimeParseException {
-        if (text == null) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         try {
