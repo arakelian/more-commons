@@ -340,6 +340,43 @@ public class MoreStringUtils {
     }
 
     /**
+     * Returns a string where non-printable control characters are replaced by whitespace.
+     *
+     * @param value
+     *            string which may contain non-printable characters
+     * @return a string where non-printable control characters are replaced by whitespace.
+     */
+    public static String replaceNonPrintableControlCharacters(final String value) {
+        if (value == null || value.length() == 0) {
+            return value;
+        }
+
+        boolean changing = false;
+        for (int i = 0, length = value.length(); i < length; i++) {
+            final char ch = value.charAt(i);
+            if (ch < 32 && ch != '\n' && ch != '\r' && ch != '\t') {
+                changing = true;
+                break;
+            }
+        }
+
+        if (!changing) {
+            return value;
+        }
+
+        final StringBuilder buf = new StringBuilder(value);
+        for (int i = 0, length = buf.length(); i < length; i++) {
+            final char ch = buf.charAt(i);
+            if (ch < 32 && ch != '\n' && ch != '\r' && ch != '\t') {
+                buf.setCharAt(i, ' ');
+            }
+        }
+
+        // return cleaned string
+        return buf.toString();
+    }
+
+    /**
      * Returns a short UUID which is encoding use base 64 characters instead of hexadecimal. This
      * saves 10 bytes per UUID.
      *

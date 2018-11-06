@@ -17,6 +17,7 @@
 
 package com.arakelian.core.utils;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -86,6 +87,33 @@ public class MoreStringUtilsTest {
         default:
             fail("Unexpected file separator");
         }
+    }
+
+    @Test
+    public void testNonPrintableControlCharacters() {
+        // simple example
+        assertEquals("hello there", MoreStringUtils.replaceNonPrintableControlCharacters("hello\u0000there"));
+
+        // build example with all control characters
+        StringBuilder buf = new StringBuilder();
+        for (char ch = 0; ch <= 40; ch++) {
+            buf.append(ch);
+        }
+
+        final String clean = MoreStringUtils.replaceNonPrintableControlCharacters(buf.toString());
+        int[] actual = new int[clean.length()];
+        for (int i = 0; i < clean.length(); i++) {
+            actual[i] = clean.charAt(i);
+        }
+
+        // all non-printable control characters should be spaces
+        int[] expected = { //
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\t', //
+                '\n', ' ', ' ', '\r', ' ', ' ', ' ', ' ', ' ', ' ', //
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
+                ' ', ' ', ' ', '!', '"', '#', '$', '%', '&', '\'', //
+                '(' };
+        assertArrayEquals(expected, actual);
     }
 
     @Test
