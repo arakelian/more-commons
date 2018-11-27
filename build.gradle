@@ -23,7 +23,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "2.0.4"
 
     // useful utilities
-    id "com.arakelian.multitool" version "1.5.3"
+    id "com.arakelian.multitool" version "1.5.7"
 }
 
 group   = 'com.arakelian'
@@ -47,7 +47,7 @@ multitool {
 }
 
 dependencies {
-    processor 'org.immutables:value:2.7.1'
+    processor 'org.immutables:value:2.7.3'
     
     // the gradle plugin uses latest.release which breaks reproducibility
     errorprone 'com.google.errorprone:error_prone_core:2.3.1'
