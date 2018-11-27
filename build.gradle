@@ -17,7 +17,7 @@ plugins {
     id "net.ltgt.errorprone" version "0.0.16"
 
     // for deployment to Maven Central
-    id "io.codearte.nexus-staging" version "0.11.0"
+    id "io.codearte.nexus-staging" version "0.12.0"
 
     // for building fat jar
     id "com.github.johnrengelman.shadow" version "2.0.4"
@@ -50,9 +50,9 @@ dependencies {
     processor 'org.immutables:value:2.7.3'
     
     // the gradle plugin uses latest.release which breaks reproducibility
-    errorprone 'com.google.errorprone:error_prone_core:2.3.1'
+    errorprone 'com.google.errorprone:error_prone_core:2.3.2'
 
-    shadow      'com.google.guava:guava:26.0-jre'
+    shadow      'com.google.guava:guava:27.0.1-jre'
     shadow      'commons-io:commons-io:2.6'
     shadow      'org.apache.commons:commons-lang3:3.8.1'
     shadow      'org.ow2.asm:asm:5.1' // ClassScanner
