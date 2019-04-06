@@ -57,15 +57,17 @@ public class DateUtilsTest {
 
     @Test
     public void testEpochConversion() {
-        final ZonedDateTime now = DateUtils.nowWithZoneUtc();
-        final long epochMillis = now.toInstant().toEpochMilli();
+        final ZonedDateTime nowUtcNanos = DateUtils.nowWithZoneUtc();
+        final ZonedDateTime nowUtcMillis = DateUtils.withDatePrecision(nowUtcNanos);
+
+        final long epochMillis = nowUtcMillis.toInstant().toEpochMilli();
         final long epochSeconds = epochMillis / 1000;
         final long epochNanos = epochMillis * 1000;
         assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochSeconds).toEpochSecond());
         assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochMillis).toEpochSecond());
         assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochNanos).toEpochSecond());
-        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochMillis));
-        assertEquals(now, DateUtils.toZonedDateTimeUtc(epochNanos));
+        assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(epochMillis));
+        assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(epochNanos));
     }
 
     @Test
@@ -139,14 +141,15 @@ public class DateUtilsTest {
     @Test
     public void testLegacyJavaDates() {
         final Date now = new Date();
-        final ZonedDateTime nowUtc = DateUtils.nowWithZoneUtc();
+        final ZonedDateTime nowUtcNanos = DateUtils.nowWithZoneUtc();
+        final ZonedDateTime nowUtcMillis = DateUtils.withDatePrecision(nowUtcNanos);
 
         // java dates don't have timezone
-        assertEquals(nowUtc, DateUtils.toZonedDateTimeUtc(now));
+        assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(now));
 
         // SQL date conversion is trickier because it doesn't support toInstant()
-        assertEquals(nowUtc, DateUtils.toZonedDateTimeUtc(new java.sql.Date(now.getTime())));
-        assertEquals(nowUtc, DateUtils.toZonedDateTimeUtc(new java.sql.Timestamp(now.getTime())));
+        assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(new java.sql.Date(now.getTime())));
+        assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(new java.sql.Timestamp(now.getTime())));
     }
 
     @Test

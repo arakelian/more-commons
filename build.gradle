@@ -1,5 +1,14 @@
 // more-commons
 
+buildscript {
+  repositories {
+    mavenLocal()
+  }
+  dependencies {
+    classpath "com.arakelian:gradle-multitool:2.0.4-SNAPSHOT"
+  }
+}
+  
 plugins {
     id 'java'
     id 'maven'
@@ -8,27 +17,31 @@ plugins {
     id 'idea'
 
     // keep dependencies up-to-date!
-    id 'com.github.ben-manes.versions' version '0.20.0'
+    id 'com.github.ben-manes.versions' version '0.21.0'
 
     // useful for creating immutable java beans
-    id 'org.inferred.processors' version '1.2.18'
+    id 'org.inferred.processors' version '2.2.0'
 
     // to ensure clean code
-    id "net.ltgt.errorprone" version "0.0.16"
+    id "net.ltgt.errorprone" version "0.7.1"
 
     // for deployment to Maven Central
-    id "io.codearte.nexus-staging" version "0.12.0"
+    id "io.codearte.nexus-staging" version "0.20.0"
 
     // for building fat jar
-    id "com.github.johnrengelman.shadow" version "2.0.4"
+    id "com.github.johnrengelman.shadow" version "5.0.0"
 
     // useful utilities
-    id "com.arakelian.multitool" version "1.5.7"
+    //id "com.arakelian.multitool" version "2.0.3"
 }
+
+apply plugin: "com.arakelian.multitool"
 
 group   = 'com.arakelian'
 
-task wrapper(type: Wrapper) { gradleVersion = '4.10.2' }
+wrapper { 
+    gradleVersion = '5.3' 
+}
 
 multitool {
     relocates += [
@@ -41,21 +54,26 @@ multitool {
     
     proguardConfiguration {
         keep includedescriptorclasses:true, 'class com.arakelian.** { *; }'
-
+        keep includedescriptorclasses:true, 'class **.com.google.common.collect.Lists { *; }'
+        keep includedescriptorclasses:true, 'class **.com.google.common.io.Closer { *; }'
+        
         dontnote '**.org.apache.commons.lang3.ObjectUtils'
     }
 }
 
 dependencies {
-    processor 'org.immutables:value:2.7.3'
-    
-    // the gradle plugin uses latest.release which breaks reproducibility
-    errorprone 'com.google.errorprone:error_prone_core:2.3.2'
+    processor 'org.immutables:value:2.7.5'
 
-    shadow      'com.google.guava:guava:27.0.1-jre'
+    // annotations
+    compile 'org.immutables:value-annotations:2.7.5'
+    
+    // configure errorprone version
+    errorprone 'com.google.errorprone:error_prone_core:2.3.3'
+    
+    shadow      'com.google.guava:guava:27.1-jre'
     shadow      'commons-io:commons-io:2.6'
     shadow      'org.apache.commons:commons-lang3:3.8.1'
-    shadow      'org.ow2.asm:asm:5.1' // ClassScanner
+    shadow      'org.ow2.asm:asm:7.1' // ClassScanner
 
     // logging
     testCompile 'org.apache.logging.log4j:log4j-api:2.9.1'

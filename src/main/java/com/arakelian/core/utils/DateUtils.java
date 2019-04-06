@@ -69,8 +69,6 @@ import com.google.common.base.Preconditions;
  *      "http://time4j.net/tutorial/appendix.html">http://time4j.net/tutorial/appendix.html</a>
  **/
 public class DateUtils {
-    private static final String SLASH = "/";
-
     public enum EpochUnits {
         MICROSECONDS(100000000000000L) {
             @Override
@@ -120,6 +118,8 @@ public class DateUtils {
             return epoch >= minValue || epoch <= -minValue;
         }
     }
+
+    private static final String SLASH = "/";
 
     private static final String DASH = "-";
 
@@ -191,6 +191,7 @@ public class DateUtils {
     /** Thread-safe HH:MM am/pm */
     public static final DateTimeFormatter H_MM_ampm = DateTimeFormatter.ofPattern("h:mma");
 
+    @SuppressWarnings("ReturnValueIgnored")
     private static final DateTimeFormatter ZONED_DATE_TIME_PARSER = build( //
             builder -> builder //
                     .appendPattern("[uuuu-MM-dd'T'HH:mm:ss.SSSZZZ]") //
@@ -269,96 +270,6 @@ public class DateUtils {
         return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
     }
 
-    public static DateTimeFormatter dayMonthYear(
-            final TextStyle monthStyle,
-            final String daySeparator,
-            final String monthSeparator,
-            final int yearDigits) {
-        return build(builder -> {
-            builder.appendValue(DAY_OF_MONTH);
-            builder.appendLiteral(daySeparator);
-
-            if (monthStyle != null) {
-                builder.appendText(MONTH_OF_YEAR, monthStyle);
-            } else {
-                builder.appendValue(MONTH_OF_YEAR);
-            }
-            builder.appendLiteral(monthSeparator);
-
-            if (yearDigits == 2) {
-                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
-            } else if (yearDigits == 4) {
-                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
-            } else {
-                throw new IllegalStateException();
-            }
-        });
-    }
-
-    public static DateTimeFormatter monthDayYear(
-            final TextStyle monthStyle,
-            final String monthSeparator,
-            final String daySeparator,
-            final int yearDigits,
-            boolean time) {
-
-        return build(builder -> {
-            if (monthStyle != null) {
-                builder.appendText(MONTH_OF_YEAR, monthStyle);
-            } else {
-                builder.appendValue(MONTH_OF_YEAR);
-            }
-            builder.appendLiteral(monthSeparator);
-
-            builder.appendValue(DAY_OF_MONTH);
-            builder.appendLiteral(daySeparator);
-
-            if (yearDigits == 2) {
-                // follows 80-20 rule
-                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
-            } else if (yearDigits == 4) {
-                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
-            } else {
-                throw new IllegalStateException();
-            }
-
-            if (time) {
-                builder.appendLiteral(' ').append(TIME);
-            }
-        });
-    }
-
-    public static DateTimeFormatter yearMonthDay(
-            final TextStyle monthStyle,
-            final String yearSeparator,
-            final String monthSeparator,
-            final int yearDigits,
-            boolean time) {
-        return build(builder -> {
-            if (yearDigits == 2) {
-                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now().minusYears(80));
-            } else if (yearDigits == 4) {
-                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
-            } else {
-                throw new IllegalStateException();
-            }
-            builder.appendLiteral(yearSeparator);
-
-            if (monthStyle != null) {
-                builder.appendText(MONTH_OF_YEAR, monthStyle);
-            } else {
-                builder.appendValue(MONTH_OF_YEAR);
-            }
-            builder.appendLiteral(monthSeparator);
-
-            builder.appendValue(DAY_OF_MONTH);
-
-            if (time) {
-                builder.appendLiteral(' ').append(TIME);
-            }
-        });
-    }
-
     public static int compare(final Date d1, final Date d2) {
         if (d1 == null) {
             if (d2 != null) {
@@ -376,6 +287,32 @@ public class DateUtils {
             }
         }
         return 0;
+    }
+
+    public static DateTimeFormatter dayMonthYear(
+            final TextStyle monthStyle,
+            final String daySeparator,
+            final String monthSeparator,
+            final int yearDigits) {
+        return build(builder -> {
+            builder.appendValue(DAY_OF_MONTH);
+            builder.appendLiteral(daySeparator);
+
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            if (yearDigits == 2) {
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now(ZoneId.systemDefault()).minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+        });
     }
 
     public static boolean hasSameDate(final ZonedDateTime lhs, final ZonedDateTime rhs) {
@@ -417,6 +354,39 @@ public class DateUtils {
             return false;
         }
         return UTC_ZONE.equals(date.getZone());
+    }
+
+    public static DateTimeFormatter monthDayYear(
+            final TextStyle monthStyle,
+            final String monthSeparator,
+            final String daySeparator,
+            final int yearDigits,
+            final boolean time) {
+
+        return build(builder -> {
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            builder.appendValue(DAY_OF_MONTH);
+            builder.appendLiteral(daySeparator);
+
+            if (yearDigits == 2) {
+                // follows 80-20 rule
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now(ZoneId.systemDefault()).minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+
+            if (time) {
+                builder.appendLiteral(' ').append(TIME);
+            }
+        });
     }
 
     public static ZonedDateTime nowWithZoneUtc() {
@@ -593,6 +563,41 @@ public class DateUtils {
     public static ZonedDateTime toZonedDateTimeUtcChecked(final String text) throws DateTimeParseException {
         final ZonedDateTime date = parseChecked(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
+    }
+
+    public static ZonedDateTime withDatePrecision(final ZonedDateTime date) {
+        return DateUtils.toZonedDateTimeUtc(DateUtils.toDate(date));
+    }
+
+    public static DateTimeFormatter yearMonthDay(
+            final TextStyle monthStyle,
+            final String yearSeparator,
+            final String monthSeparator,
+            final int yearDigits,
+            final boolean time) {
+        return build(builder -> {
+            if (yearDigits == 2) {
+                builder.appendValueReduced(YEAR, 2, 2, LocalDate.now(ZoneId.systemDefault()).minusYears(80));
+            } else if (yearDigits == 4) {
+                builder.appendValue(YEAR, 4, 10, SignStyle.NEVER);
+            } else {
+                throw new IllegalStateException();
+            }
+            builder.appendLiteral(yearSeparator);
+
+            if (monthStyle != null) {
+                builder.appendText(MONTH_OF_YEAR, monthStyle);
+            } else {
+                builder.appendValue(MONTH_OF_YEAR);
+            }
+            builder.appendLiteral(monthSeparator);
+
+            builder.appendValue(DAY_OF_MONTH);
+
+            if (time) {
+                builder.appendLiteral(' ').append(TIME);
+            }
+        });
     }
 
     private static DateTimeFormatter build(final Consumer<DateTimeFormatterBuilder> consumer) {
