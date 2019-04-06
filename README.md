@@ -4,6 +4,11 @@ Small utility classes useful in a variety of projects. Philosophically, this lib
 augment what is available in Guava or Apache Commons, which we assume is linked into most projects. 
 We make every attempt to avoid reinventing the wheel.
 
+## Requirements
+
+* Version 1.x is compatible with Java 8+
+* Version 2.x is compatible with Java 11+
+
 ## Installation
 
 The library is available on [Maven Central](https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.arakelian%22%20AND%20a%3A%22more-commons%22).
