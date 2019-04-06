@@ -1,13 +1,4 @@
 // more-commons
-
-buildscript {
-  repositories {
-    mavenLocal()
-  }
-  dependencies {
-    classpath "com.arakelian:gradle-multitool:2.0.4-SNAPSHOT"
-  }
-}
   
 plugins {
     id 'java'
@@ -32,7 +23,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
 
     // useful utilities
-    //id "com.arakelian.multitool" version "2.0.3"
+    id "com.arakelian.multitool" version "2.1.0"
 }
 
 apply plugin: "com.arakelian.multitool"
