@@ -554,6 +554,7 @@ public class MoreStringUtils {
         }
     }
 
+    @SuppressWarnings("PreferJavaTimeOverload")
     private static TimeUnit chooseUnit(final long nanos) {
         // from Guava StopWatch.chooseUnit
         if (DAYS.convert(nanos, NANOSECONDS) > 0) {
