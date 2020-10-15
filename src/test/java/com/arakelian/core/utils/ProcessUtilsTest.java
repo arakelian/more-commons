@@ -17,12 +17,12 @@
 
 package com.arakelian.core.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class ProcessUtilsTest {
     /** True if OS is flavor of Microsoft Windows **/
     private boolean isWindows;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         os = System.getProperty("os.name");
         isWindows = os.startsWith("Windows");

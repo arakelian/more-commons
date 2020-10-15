@@ -17,14 +17,14 @@
 
 package com.arakelian.core.utils;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MoreStringUtilsTest {
     private static final String AMEX_CC = "378282246310005";
@@ -55,8 +55,8 @@ public class MoreStringUtilsTest {
     public void testIsUuid() {
         for (int i = 0; i < 1000; i++) {
             final String uuid = MoreStringUtils.uuid();
-            assertTrue(uuid.toLowerCase() + " is not valid uuid", MoreStringUtils.isUuid(uuid.toLowerCase()));
-            assertTrue(uuid.toUpperCase() + " is not valid uuid", MoreStringUtils.isUuid(uuid.toUpperCase()));
+            assertTrue(MoreStringUtils.isUuid(uuid.toLowerCase()), uuid.toLowerCase() + " is not valid uuid");
+            assertTrue(MoreStringUtils.isUuid(uuid.toUpperCase()), uuid.toUpperCase() + " is not valid uuid");
         }
     }
 

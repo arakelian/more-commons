@@ -17,11 +17,12 @@
 
 package com.arakelian.core.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -31,8 +32,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,8 +134,8 @@ public class DateUtilsTest {
 
     @Test
     public void testIsUtc() {
-        Assert.assertTrue(DateUtils.isUtc(DateUtils.nowWithZoneUtc()));
-        Assert.assertFalse(DateUtils.isUtc(ZonedDateTime.now(ZoneId.of("America/New_York"))));
+        assertTrue(DateUtils.isUtc(DateUtils.nowWithZoneUtc()));
+        assertFalse(DateUtils.isUtc(ZonedDateTime.now(ZoneId.of("America/New_York"))));
     }
 
     @Test
@@ -157,7 +157,7 @@ public class DateUtilsTest {
         final ZonedDateTime now = DateUtils.nowWithZoneUtc();
         final ZonedDateTime date = DateUtils
                 .toZonedDateTimeUtc(now.getYear(), now.getMonth(), now.getDayOfMonth());
-        Assert.assertEquals(DateUtils.atStartOfDay(date), date);
+        assertEquals(DateUtils.atStartOfDay(date), date);
     }
 
     @Test
@@ -262,12 +262,12 @@ public class DateUtilsTest {
             final long fromMillis = DateUtils.toEpochMillisUtc(from);
             final long toMillis = DateUtils.toEpochMillisUtc(to);
             final long randomMillis = DateUtils.toEpochMillisUtc(random);
-            Assert.assertTrue(randomMillis >= fromMillis);
-            Assert.assertTrue(randomMillis <= toMillis);
+            assertTrue(randomMillis >= fromMillis);
+            assertTrue(randomMillis <= toMillis);
 
             // check via date API
-            Assert.assertTrue(random.getYear() >= fromYear);
-            Assert.assertTrue(random.getYear() <= toYear);
+            assertTrue(random.getYear() >= fromYear);
+            assertTrue(random.getYear() <= toYear);
         }
     }
 
@@ -423,11 +423,11 @@ public class DateUtilsTest {
     private void verifyToStringIsoUtc(final ZonedDateTime date, final String text) {
         // should look like this: 2016-12-18T16:04:41.198Z
         final int length = text.length();
-        assertTrue("Expected \"" + text + "\" to be 30 characters long", length == 30);
+        assertTrue(length == 30, "Expected \"" + text + "\" to be 30 characters long");
         assertEquals(
-                "Expected \"" + text + "\" to end with letter Z",
                 "Z",
-                text.substring(length - 1, length));
+                text.substring(length - 1, length),
+                "Expected \"" + text + "\" to end with letter Z");
 
         // parse date and compare
         final ZonedDateTime dateWithZoneUtc = date.withZoneSameInstant(ZoneOffset.UTC);
