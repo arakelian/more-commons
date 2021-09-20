@@ -33,6 +33,7 @@ plugins {
 }
 
 group   = 'com.arakelian'
+version = '3.1.0'
 
 
 apply from: "core.gradle"
