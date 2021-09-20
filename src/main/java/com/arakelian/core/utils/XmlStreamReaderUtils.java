@@ -44,10 +44,10 @@ public class XmlStreamReaderUtils {
     /**
      * Holds the textual representation for events.
      */
-    public static final String[] NAMES_OF_EVENTS = new String[] { "UNDEFINED", "START_ELEMENT", "END_ELEMENT",
-            "PROCESSING_INSTRUCTIONS", "CHARACTERS", "COMMENT", "SPACE", "START_DOCUMENT", "END_DOCUMENT",
-            "ENTITY_REFERENCE", "ATTRIBUTE", "DTD", "CDATA", "NAMESPACE", "NOTATION_DECLARATION",
-            "ENTITY_DECLARATION" };
+    private static final String[] NAMES_OF_EVENTS = new String[] { "UNDEFINED", "START_ELEMENT",
+            "END_ELEMENT", "PROCESSING_INSTRUCTIONS", "CHARACTERS", "COMMENT", "SPACE", "START_DOCUMENT",
+            "END_DOCUMENT", "ENTITY_REFERENCE", "ATTRIBUTE", "DTD", "CDATA", "NAMESPACE",
+            "NOTATION_DECLARATION", "ENTITY_DECLARATION" };
 
     /**
      * Copy the START_DOCUMENT event.
@@ -1418,6 +1418,7 @@ public class XmlStreamReaderUtils {
         copyXMLStream(reader, null, COPY_SINGLE_ELEMENT);
     }
 
+    @SuppressWarnings("OperatorPrecedence")
     public static final void skipWhitespace(final XMLStreamReader reader) throws XMLStreamException {
         int eventType = reader.getEventType();
         while (eventType == XMLStreamConstants.CHARACTERS && reader.isWhiteSpace()

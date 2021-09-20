@@ -262,6 +262,7 @@ public class DateUtils {
                     .appendPattern("[uuuuMMdd]") //
                     .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd());
 
+    @SuppressWarnings("ZoneIdOfZ")
     public static final ZoneId UTC_ZONE = ZoneId.of("Z");
 
     private static final Random JVM_RANDOM = new Random();
@@ -278,8 +279,8 @@ public class DateUtils {
         } else if (d2 == null) {
             return +1;
         } else {
-            final long t1 = d1.getTime();
-            final long t2 = d2.getTime();
+            final long t1 = d1.toInstant().toEpochMilli();
+            final long t2 = d2.toInstant().toEpochMilli();
             if (t1 < t2) {
                 return -1;
             } else if (t1 > t2) {
@@ -335,7 +336,7 @@ public class DateUtils {
 
     public static boolean hasTimeComponent(final Date date) {
         if (date != null) {
-            final long epochMillis = date.getTime();
+            final long epochMillis = date.toInstant().toEpochMilli();
             final long timePortion = epochMillis % MILLIS_PER_DAY;
             return timePortion != 0;
         }
@@ -618,6 +619,7 @@ public class DateUtils {
                 .withResolverStyle(ResolverStyle.STRICT);
     }
 
+    @SuppressWarnings("JavaUtilDate")
     private static Instant toInstant(final Date date) {
         final Instant instant;
         if (date instanceof java.sql.Date) {
@@ -633,8 +635,10 @@ public class DateUtils {
     /**
      * Returns a <code>ZonedDateTime</code> from the given epoch value.
      *
-     * @param epoch
+     * @param epochValue
      *            value in milliseconds
+     * @param units
+     *            epoch units
      * @return a <code>ZonedDateTime</code> or null if the date is not valid
      */
     private static ZonedDateTime toZonedDateTimeUtc(final long epochValue, final EpochUnits units) {
