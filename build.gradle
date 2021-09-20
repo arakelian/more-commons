@@ -48,14 +48,14 @@ publishing.publications.mavenJava {
         description = "Small utility classes useful in a variety of projects. Don't reinvent the wheel. Stay small."
         url = "https://github.com/arakelian/more-commons"
         
-		licenses {
+        licenses {
             license {
                 name = 'The Apache License, Version 2.0'
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
             }
         }
         
-		developers {
+        developers {
             developer {
                 id = 'arakelian'
                 name = 'Greg Arakelian'
@@ -63,12 +63,12 @@ publishing.publications.mavenJava {
             }
         }
         
-		scm {
-			connection = 'scm:git:https://github.com/arakelian/more-commons.git'
-			developerConnection = 'scm:git:git@github.com:arakelian/more-commons.git'
-			url = 'https://github.com/arakelian/more-commons.git'
-		}
-	}
+        scm {
+            connection = 'scm:git:https://github.com/arakelian/more-commons.git'
+            developerConnection = 'scm:git:git@github.com:arakelian/more-commons.git'
+            url = 'https://github.com/arakelian/more-commons.git'
+        }
+    }
 }
 
 dependencies {
@@ -121,11 +121,11 @@ minify {
     injars shadowJar.archivePath
     
     // output jar
-	outjars project.ext.minifyJarFile
+    outjars project.ext.minifyJarFile
     
     // jars required on classpath at runtime, including Java runtime
     libraryjars project.ext.libraryJars()
 
     // classes that we need to keep
-	keep includedescriptorclasses:true, 'class com.arakelian.** { *; }'
+    keep includedescriptorclasses:true, 'class com.arakelian.** { *; }'
 }
