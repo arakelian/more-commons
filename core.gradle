@@ -59,6 +59,11 @@ task javadocJar(type: Jar, dependsOn: classes) {
 	classifier = 'javadoc'
 }
 
+task testsJar(type:Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+    classifier = 'tests'
+}
+
 test {
     // enable JUnit 5 tests
     useJUnitPlatform()
@@ -229,6 +234,7 @@ if(hasProGuard) {
                 artifact project.ext.minifyJar
 	            artifact sourcesJar
 	            artifact javadocJar
+	            artifact testsJar
             }
 	    }
 	}
@@ -240,6 +246,7 @@ if(hasProGuard) {
 	            from components.java
 	            artifact sourcesJar
 	            artifact javadocJar
+	            artifact testsJar
 	        }
 	    }
 	}
