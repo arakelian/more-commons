@@ -43,15 +43,6 @@ wrapper {
 }
 
 publishing.publications.mavenJava {
-    from components.java
-    versionMapping {
-        usage('java-api') {
-            fromResolutionOf('runtimeClasspath')
-        }
-        usage('java-runtime') {
-            fromResolutionResult()
-        }
-    }
     pom {
         name = "More Commons"
         description = "Small utility classes useful in a variety of projects. Don't reinvent the wheel. Stay small."
