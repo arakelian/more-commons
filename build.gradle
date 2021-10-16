@@ -43,6 +43,15 @@ wrapper {
 }
 
 publishing.publications.mavenJava {
+    from components.java
+    versionMapping {
+        usage('java-api') {
+            fromResolutionOf('runtimeClasspath')
+        }
+        usage('java-runtime') {
+            fromResolutionResult()
+        }
+    }
     pom {
         name = "More Commons"
         description = "Small utility classes useful in a variety of projects. Don't reinvent the wheel. Stay small."
@@ -69,6 +78,14 @@ publishing.publications.mavenJava {
             url = 'https://github.com/arakelian/more-commons.git'
         }
     }
+	pom.withXml {
+		Node pomNode = asNode()
+		pomNode.dependencies.'*'.findAll() {
+		    it.artifactId.text() in [ 'value-annotations', 'guava', 'commons-io', 'commons-lang3' ]
+		}.each() {
+		    it.parent().remove(it)
+		}
+	}
 }
 
 dependencies {
