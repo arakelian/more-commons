@@ -1,5 +1,6 @@
 # more-commons
 [![build](https://github.com/arakelian/more-commons/actions/workflows/build.yml/badge.svg)](https://github.com/arakelian/more-commons/actions/workflows/build.yml)
+[![version](https://img.shields.io/maven-metadata/v.svg?label=maven-central&metadataUrl=https://repo1.maven.org/maven2/com/arakelian/more-commons/maven-metadata.xml)]
 
 Small utility classes useful in a variety of projects. Philosophically, this library is intended to 
 augment what is available in Guava or Apache Commons, which we assume is linked into most projects. 
