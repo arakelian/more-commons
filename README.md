@@ -1,4 +1,6 @@
 # more-commons
+[![Build Status](https://github.com/arakelian/more-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/arakelian/more-commons/actions/workflows)
+
 
 Small utility classes useful in a variety of projects. Philosophically, this library is intended to 
 augment what is available in Guava or Apache Commons, which we assume is linked into most projects. 
