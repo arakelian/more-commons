@@ -1,5 +1,5 @@
 # more-commons
-[![Build Status](https://github.com/arakelian/more-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/arakelian/more-commons/actions/workflows)
+[![Build Status](https://github.com/arakelian/more-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/arakelian/more-commons/actions/workflows/ci.yml)
 
 
 Small utility classes useful in a variety of projects. Philosophically, this library is intended to 
