@@ -33,13 +33,13 @@ plugins {
 }
 
 group   = 'com.arakelian'
-version = '3.1.0'
+version = '3.1.1'
 
 
 apply from: "core.gradle"
 
 wrapper { 
-    gradleVersion = '7.2'
+    gradleVersion = '7.3'
 }
 
 publishing.publications.mavenJava {
@@ -86,7 +86,7 @@ dependencies {
     api 'org.immutables:value-annotations:2.9.0-rc1'
     
     // configure errorprone version
-    errorprone 'com.google.errorprone:error_prone_core:2.9.0'
+    errorprone 'com.google.errorprone:error_prone_core:2.10.0'
 
     shadow      'com.google.guava:guava:31.0.1-jre'
     shadow      'commons-io:commons-io:2.11.0'
@@ -105,7 +105,8 @@ dependencies {
 }
 
 shadowJar {
-    //task.mergeServiceFiles()
+    // need to update any META-INF/services to relocated class names
+    mergeServiceFiles()
 
     // we don't want poms for third-party stuff
     exclude 'META-INF/maven/**/*'
