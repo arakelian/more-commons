@@ -72,58 +72,69 @@ public class DateUtils {
     public enum EpochUnits {
         NANOSECONDS() {
             @Override
+            public boolean isValid(final long epoch) {
+                // 10^16
+                // October 31, 1966 or March 3, 1973
+                return epoch <= -10_000_000_000_000_000L || epoch >= 10_000_000_000_000_000L;
+            }
+
+            @Override
             public long toMillis(final long value) {
                 return value / 1_000_000;
             }
-
-            @Override
-            public boolean isValid(long epoch) {
-                // 10^16
-                // March 3, 1973 or October 31, 1966
-                return epoch >= 10_000_000_000_000_000L || epoch <= -10_000_000_000_000_000L;
-            }
         },
-        
+
         MICROSECONDS() {
+            @Override
+            public boolean isValid(final long epoch) {
+                // 10^14
+                // October 31, 1966 or March 3, 1973
+                return epoch <= -100_000_000_000_000L || epoch >= 100_000_000_000_000L;
+            }
+
             @Override
             public long toMillis(final long value) {
                 return value / 1000;
-            }
-
-            @Override
-            public boolean isValid(long epoch) {
-                // 10^14
-                // March 3, 1973 or October 31, 1966
-                return epoch >= 100_000_000_000_000L || epoch <= -100_000_000_000_000L;
             }
         },
 
         MILLISECONDS {
             @Override
-            public long toMillis(final long value) {
-                return value;
+            public boolean isValid(final long epoch) {
+                // January 18, 1969 or March 3, 1973
+                return epoch <= -30_000_000_000L || epoch >= 100_000_000_000L;
             }
 
             @Override
-            public boolean isValid(long epoch) {
-                // 10^11 and 3^10
-                // March 3, 1973 or January 18, 1969
-                return epoch >= 100_000_000_000L || epoch <= -30_000_000_000L;
+            public long toMillis(final long value) {
+                return value;
             }
         },
 
         SECONDS {
             @Override
-            public long toMillis(final long value) {
-                return value * 1000;
+            public boolean isValid(final long epoch) {
+                // there is window of time from 1/18/1969 (-30_000_000_000L) to 3/3/1973
+                // (100_000_000_000L) that will be assumed to be seconds.
+                return true;
             }
 
             @Override
-            public boolean isValid(long epoch) {
-                return true;
+            public long toMillis(final long value) {
+                return value * 1000;
             }
         };
 
+        /**
+         * Tries to get guess units from given value.
+         *
+         * For example, Unix timestamps are the number of SECONDS since January 1, 1970, while Java
+         * Dates are number of MILLISECONDS since January 1, 1970.
+         *
+         * @param epoch
+         *            epoch value
+         * @return units
+         */
         public static EpochUnits valueOf(final long epoch) {
             if (NANOSECONDS.isValid(epoch)) {
                 return NANOSECONDS;
@@ -136,14 +147,14 @@ public class DateUtils {
             }
         }
 
+        public abstract boolean isValid(final long epoch);
+
         public Instant toInstant(final long value) {
             final long epochMillis = toMillis(value);
             return Instant.ofEpochMilli(epochMillis);
         }
 
         public abstract long toMillis(long value);
-
-        public abstract boolean isValid(final long epoch);
     }
 
     private static final String SLASH = "/";
@@ -298,6 +309,24 @@ public class DateUtils {
         return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
     }
 
+    private static DateTimeFormatter build(final Consumer<DateTimeFormatterBuilder> consumer) {
+        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder() //
+                .parseStrict() //
+                .parseCaseInsensitive();
+
+        consumer.accept(builder);
+
+        return builder //
+                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) //
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0) //
+                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
+                .parseDefaulting(ChronoField.NANO_OF_SECOND, 0) //
+                .parseDefaulting(ChronoField.ERA, 1) //
+                .toFormatter() //
+                .withChronology(IsoChronology.INSTANCE) //
+                .withResolverStyle(ResolverStyle.STRICT);
+    }
+
     public static int compare(final Date d1, final Date d2) {
         if (d1 == null) {
             if (d2 != null) {
@@ -349,13 +378,7 @@ public class DateUtils {
         } else if (rhs == null) {
             return false;
         }
-        if (lhs.getMonth() != rhs.getMonth()) {
-            return false;
-        }
-        if (lhs.getDayOfMonth() != rhs.getDayOfMonth()) {
-            return false;
-        }
-        if (lhs.getYear() != rhs.getYear()) {
+        if ((lhs.getMonth() != rhs.getMonth()) || (lhs.getDayOfMonth() != rhs.getDayOfMonth()) || (lhs.getYear() != rhs.getYear())) {
             return false;
         }
         return true;
@@ -499,6 +522,19 @@ public class DateUtils {
         return toUtc(date).toInstant().toEpochMilli();
     }
 
+    @SuppressWarnings("JavaUtilDate")
+    private static Instant toInstant(final Date date) {
+        final Instant instant;
+        if (date instanceof java.sql.Date) {
+            // SQL dates do not contain time information and they throw an exception if toInstant()
+            // is called
+            instant = Instant.ofEpochMilli(date.getTime());
+        } else {
+            instant = date.toInstant();
+        }
+        return instant;
+    }
+
     public static LocalDateTime toLocalDateTime(final String text) {
         return parse(text, ZoneOffset.systemDefault(), LocalDateTime::from);
     }
@@ -583,6 +619,21 @@ public class DateUtils {
         return toZonedDateTimeUtc(epoch, units);
     }
 
+    /**
+     * Returns a <code>ZonedDateTime</code> from the given epoch value.
+     *
+     * @param epochValue
+     *            value in milliseconds
+     * @param units
+     *            epoch units
+     * @return a <code>ZonedDateTime</code> or null if the date is not valid
+     */
+    public static ZonedDateTime toZonedDateTimeUtc(final long epochValue, final EpochUnits units) {
+        Preconditions.checkArgument(units != null, "units must be non-null");
+        final Instant instant = units.toInstant(epochValue);
+        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
+    }
+
     public static ZonedDateTime toZonedDateTimeUtc(final String text) {
         final ZonedDateTime date = parse(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
@@ -626,51 +677,5 @@ public class DateUtils {
                 builder.appendLiteral(' ').append(TIME);
             }
         });
-    }
-
-    private static DateTimeFormatter build(final Consumer<DateTimeFormatterBuilder> consumer) {
-        final DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder() //
-                .parseStrict() //
-                .parseCaseInsensitive();
-
-        consumer.accept(builder);
-
-        return builder //
-                .parseDefaulting(ChronoField.HOUR_OF_DAY, 0) //
-                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0) //
-                .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0) //
-                .parseDefaulting(ChronoField.NANO_OF_SECOND, 0) //
-                .parseDefaulting(ChronoField.ERA, 1) //
-                .toFormatter() //
-                .withChronology(IsoChronology.INSTANCE) //
-                .withResolverStyle(ResolverStyle.STRICT);
-    }
-
-    @SuppressWarnings("JavaUtilDate")
-    private static Instant toInstant(final Date date) {
-        final Instant instant;
-        if (date instanceof java.sql.Date) {
-            // SQL dates do not contain time information and they throw an exception if toInstant()
-            // is called
-            instant = Instant.ofEpochMilli(date.getTime());
-        } else {
-            instant = date.toInstant();
-        }
-        return instant;
-    }
-
-    /**
-     * Returns a <code>ZonedDateTime</code> from the given epoch value.
-     *
-     * @param epochValue
-     *            value in milliseconds
-     * @param units
-     *            epoch units
-     * @return a <code>ZonedDateTime</code> or null if the date is not valid
-     */
-    private static ZonedDateTime toZonedDateTimeUtc(final long epochValue, final EpochUnits units) {
-        Preconditions.checkArgument(units != null, "units must be non-null");
-        final Instant instant = units.toInstant(epochValue);
-        return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 }
