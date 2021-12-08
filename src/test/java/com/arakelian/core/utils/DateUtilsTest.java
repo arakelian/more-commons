@@ -17,6 +17,8 @@
 
 package com.arakelian.core.utils;
 
+import static com.arakelian.core.utils.DateUtils.EpochUnits.MILLISECONDS;
+import static com.arakelian.core.utils.DateUtils.EpochUnits.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -36,7 +38,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings({"PreferJavaTimeOverload","JavaUtilDate"})
+import com.arakelian.core.utils.DateUtils.EpochUnits;
+
+@SuppressWarnings({ "PreferJavaTimeOverload", "JavaUtilDate" })
 public class DateUtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtilsTest.class);
 
@@ -45,6 +49,40 @@ public class DateUtilsTest {
 
     private static final ZonedDateTime SAMPLE_UTC = SAMPLE_LOCAL //
             .withZoneSameInstant(ZoneOffset.UTC);
+
+    private void assertLdtEquals(final LocalDateTime expected, final String dateString) {
+        final LocalDateTime date;
+        if (expected != null) {
+            date = DateUtils.toLocalDateTimeChecked(dateString);
+        } else {
+            date = DateUtils.toLocalDateTime(dateString);
+        }
+        assertEquals(expected, date);
+    }
+
+    private void assertSameZdt(final ZonedDateTime expected, final ZonedDateTime actual) {
+        assertNotNull(expected);
+        assertNotNull(actual);
+        assertEquals(expected.getMonth(), actual.getMonth());
+        assertEquals(expected.getDayOfMonth(), actual.getDayOfMonth());
+        assertEquals(expected.getYear(), actual.getYear());
+        assertEquals(expected.getHour(), actual.getHour());
+        assertEquals(expected.getMinute(), actual.getMinute());
+        assertEquals(expected.getSecond(), actual.getSecond());
+        assertEquals(expected.getNano(), actual.getNano());
+        assertEquals(expected.getZone(), actual.getZone());
+    }
+
+    private void assertZdtEquals(final ZonedDateTime expected, final String dateString) {
+        final ZonedDateTime date;
+        if (expected != null) {
+            date = DateUtils.toZonedDateTimeUtcChecked(dateString);
+        } else {
+            date = DateUtils.toZonedDateTimeUtc(dateString);
+        }
+        assertSameZdt(expected, date);
+        assertEquals(expected, date);
+    }
 
     @Test
     public void testDayWIthMonthNameWithYear() {
@@ -69,6 +107,35 @@ public class DateUtilsTest {
         assertEquals(epochSeconds, DateUtils.toZonedDateTimeUtc(epochNanos).toEpochSecond());
         assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(epochMillis));
         assertEquals(nowUtcMillis, DateUtils.toZonedDateTimeUtc(epochNanos));
+    }
+
+    @Test
+    public void testEpochUnits() {
+        // December 8, 1921
+        assertEquals(SECONDS, EpochUnits.valueOf(-1516775781L));
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(-1516775781000L));
+
+        // May 9, 1967
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(-83620800000L));
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(-83620800000000L));
+
+        // January 11, 2018
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(1515628964664L));
+
+        // December 8, 1921
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(100_000_000_001L));
+
+        // September 14, 1752
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(6_857_222_400_000L));
+
+        // February 10, 1653
+        assertEquals(SECONDS, EpochUnits.valueOf(-10_000_000_000L));
+
+        // January 1, 1800 at midnight
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(-5_364_662_400_000L));
+
+        // January 1, 2100 at midnight
+        assertEquals(MILLISECONDS, EpochUnits.valueOf(4_102_444_800_000L));
     }
 
     @Test
@@ -381,40 +448,6 @@ public class DateUtilsTest {
         assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00.0");
         assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00:00");
         assertZdtEquals(SAMPLE_UTC, "9/4/16 00:00");
-    }
-
-    private void assertLdtEquals(final LocalDateTime expected, final String dateString) {
-        final LocalDateTime date;
-        if (expected != null) {
-            date = DateUtils.toLocalDateTimeChecked(dateString);
-        } else {
-            date = DateUtils.toLocalDateTime(dateString);
-        }
-        assertEquals(expected, date);
-    }
-
-    private void assertSameZdt(final ZonedDateTime expected, final ZonedDateTime actual) {
-        assertNotNull(expected);
-        assertNotNull(actual);
-        assertEquals(expected.getMonth(), actual.getMonth());
-        assertEquals(expected.getDayOfMonth(), actual.getDayOfMonth());
-        assertEquals(expected.getYear(), actual.getYear());
-        assertEquals(expected.getHour(), actual.getHour());
-        assertEquals(expected.getMinute(), actual.getMinute());
-        assertEquals(expected.getSecond(), actual.getSecond());
-        assertEquals(expected.getNano(), actual.getNano());
-        assertEquals(expected.getZone(), actual.getZone());
-    }
-
-    private void assertZdtEquals(final ZonedDateTime expected, final String dateString) {
-        final ZonedDateTime date;
-        if (expected != null) {
-            date = DateUtils.toZonedDateTimeUtcChecked(dateString);
-        } else {
-            date = DateUtils.toZonedDateTimeUtc(dateString);
-        }
-        assertSameZdt(expected, date);
-        assertEquals(expected, date);
     }
 
     private void verifyToStringIsoUtc(final ZonedDateTime now) {

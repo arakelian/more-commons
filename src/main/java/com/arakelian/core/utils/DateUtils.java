@@ -70,41 +70,70 @@ import com.google.common.base.Preconditions;
  **/
 public class DateUtils {
     public enum EpochUnits {
-        MICROSECONDS(100000000000000L) {
+        NANOSECONDS() {
+            @Override
+            public long toMillis(final long value) {
+                return value / 1_000_000;
+            }
+
+            @Override
+            public boolean isValid(long epoch) {
+                // 10^16
+                // March 3, 1973 or October 31, 1966
+                return epoch >= 10_000_000_000_000_000L || epoch <= -10_000_000_000_000_000L;
+            }
+        },
+        
+        MICROSECONDS() {
             @Override
             public long toMillis(final long value) {
                 return value / 1000;
             }
+
+            @Override
+            public boolean isValid(long epoch) {
+                // 10^14
+                // March 3, 1973 or October 31, 1966
+                return epoch >= 100_000_000_000_000L || epoch <= -100_000_000_000_000L;
+            }
         },
 
-        MILLISECONDS(100000000000L) {
+        MILLISECONDS {
             @Override
             public long toMillis(final long value) {
                 return value;
             }
+
+            @Override
+            public boolean isValid(long epoch) {
+                // 10^11 and 3^10
+                // March 3, 1973 or January 18, 1969
+                return epoch >= 100_000_000_000L || epoch <= -30_000_000_000L;
+            }
         },
 
-        SECONDS(0) {
+        SECONDS {
             @Override
             public long toMillis(final long value) {
                 return value * 1000;
             }
+
+            @Override
+            public boolean isValid(long epoch) {
+                return true;
+            }
         };
 
         public static EpochUnits valueOf(final long epoch) {
-            if (MICROSECONDS.isValid(epoch)) {
+            if (NANOSECONDS.isValid(epoch)) {
+                return NANOSECONDS;
+            } else if (MICROSECONDS.isValid(epoch)) {
                 return MICROSECONDS;
             } else if (MILLISECONDS.isValid(epoch)) {
                 return MILLISECONDS;
             } else {
                 return SECONDS;
             }
-        }
-
-        private final long minValue;
-
-        private EpochUnits(final long minValue) {
-            this.minValue = minValue;
         }
 
         public Instant toInstant(final long value) {
@@ -114,9 +143,7 @@ public class DateUtils {
 
         public abstract long toMillis(long value);
 
-        private boolean isValid(final long epoch) {
-            return epoch >= minValue || epoch <= -minValue;
-        }
+        public abstract boolean isValid(final long epoch);
     }
 
     private static final String SLASH = "/";
