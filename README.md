@@ -36,7 +36,7 @@ Add the following to your `pom.xml`:
 <dependency>
     <groupId>com.arakelian</groupId>
     <artifactId>more-commons</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.arakelian:more-commons:3.2.0'
+  compile 'com.arakelian:more-commons:3.3.0'
 }
 ```
 
