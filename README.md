@@ -9,7 +9,8 @@ We make every attempt to avoid reinventing the wheel.
 
 ## Requirements
 
-* Compatible with Java 8+
+* Versions < 4.0.0 require Java 8+
+* Version 4+ require Java 11+
 
 ## Installation
 
@@ -36,7 +37,7 @@ Add the following to your `pom.xml`:
 <dependency>
     <groupId>com.arakelian</groupId>
     <artifactId>more-commons</artifactId>
-    <version>3.4.0</version>
+    <version>4.0.0</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -51,7 +52,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.arakelian:more-commons:3.4.0'
+  compile 'com.arakelian:more-commons:4.0.0'
 }
 ```
 
