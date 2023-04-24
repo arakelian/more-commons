@@ -189,7 +189,7 @@ nexusStaging {
 eclipse {
     classpath {
         // override default 'bin'
-        defaultOutputDir = project.file('build/classes')
+        defaultOutputDir = project.file('bin/classes')
 
         // we want source files
         downloadSources = true
@@ -238,10 +238,7 @@ eclipse {
                         project.ext.excludeFromEclipse.each { path ->
                             if(entry.path.equals(path)) {
                                 remove_entries += [entry]
-                             }
-                         }
-                        if(entry.output.startsWith("bin/")) {
-                            entry.output = "build/" + entry.output.substring(4)
+                            }
                         }
                     }
                 }
@@ -257,8 +254,8 @@ eclipse {
                     node.appendNode('classpathentry', [ combineaccessrules: false, exported: true, kind: 'src', path: '/' + name ])
                 }
                 
-                def apt = ['.apt_generated_test': 'build/test',
-                           '.apt_generated':      'build/main']
+                def apt = ['.apt_generated_test': 'bin/test',
+                           '.apt_generated':      'bin/main']
                            
                 apt.each { path, output ->
                     def atts = node.appendNode('classpathentry', [kind:'src', output: output, path: path]).appendNode('attributes')
