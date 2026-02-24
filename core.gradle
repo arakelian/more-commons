@@ -86,7 +86,8 @@ tasks.withType(JavaCompile) { task ->
         // generated code can have lots of bogus warnings
         options.errorprone.disableWarningsInGeneratedCode = true
         
-        // bogus warning
+        // so annoying
+        options.errorprone.disable 'StatementSwitchToExpressionSwitch'
         options.errorprone.disable 'StringSplitter'
         
         // ignore all generated source folders
