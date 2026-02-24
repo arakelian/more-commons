@@ -17,7 +17,7 @@ plugins {
 }
 
 group   = 'com.arakelian'
-version = '5.0.0'
+version = '5.1.0'
 
 apply from: "core.gradle"
 
