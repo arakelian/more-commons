@@ -37,6 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 
+/**
+ * Utility class providing static helper methods for reading, copying, and navigating XML streams
+ * using the StAX API ({@link XMLStreamReader} and {@link XMLStreamWriter}).
+ */
 public class XmlStreamReaderUtils {
     /** Logger **/
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlStreamReaderUtils.class);
@@ -79,6 +83,19 @@ public class XmlStreamReaderUtils {
      */
     public static final int DEFAULT_COPY_FLAGS = 0;
 
+    /**
+     * Advances past an empty element by reading its END_ELEMENT tag and then advancing to the next
+     * tag. Validates that the END_ELEMENT matches the given namespace and local name.
+     *
+     * @param reader
+     *            the XMLStreamReader positioned at the content of the empty element
+     * @param namespace
+     *            the expected namespace URI of the END_ELEMENT, or {@code null}
+     * @param localName
+     *            the expected local name of the END_ELEMENT
+     * @throws XMLStreamException
+     *             if there is an error processing the stream or the END_ELEMENT does not match
+     */
     public static void closeEmptyTag(
             final XMLStreamReader reader,
             final String namespace,
@@ -111,6 +128,17 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Copies the current START_ELEMENT event from the reader to the writer, including all
+     * attributes. Handles prefix and namespace URI correctly for each element and attribute.
+     *
+     * @param reader
+     *            the XMLStreamReader positioned at a START_ELEMENT event
+     * @param writer
+     *            the XMLStreamWriter to write the start element and attributes to
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyStartElement(final XMLStreamReader reader, final XMLStreamWriter writer)
             throws XMLStreamException {
         // copy element
@@ -142,6 +170,22 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Copies text content events (CHARACTERS, CDATA, SPACE, COMMENT) from the reader to the writer
+     * and/or the given StringBuilder. Stops when a non-text event is encountered. Whether SPACE and
+     * COMMENT events are copied is controlled by the {@code flags} parameter.
+     *
+     * @param reader
+     *            the XMLStreamReader positioned at a text-type event
+     * @param writer
+     *            the XMLStreamWriter to write content to, or {@code null} to skip writing
+     * @param textBuilder
+     *            a StringBuilder to accumulate text content into, or {@code null} to skip
+     * @param flags
+     *            copy option flags (e.g. {@link #COPY_COMMENTS}, {@link #COPY_IGNORABLE_WHITESPACE})
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyText(
             final XMLStreamReader reader,
             final XMLStreamWriter writer,
@@ -187,6 +231,22 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Copies XML content from a portion of a byte array to the given XMLStreamWriter.
+     *
+     * @param buf
+     *            the byte array containing XML data
+     * @param offset
+     *            the offset within the array at which to begin reading
+     * @param size
+     *            the number of bytes to read
+     * @param writer
+     *            the XMLStreamWriter to write events to
+     * @param copyFlags
+     *            copy option flags controlling which events are written
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyXMLStream(
             final byte[] buf,
             final int offset,
@@ -196,6 +256,19 @@ public class XmlStreamReaderUtils {
         copyXMLStream(new ByteArrayInputStream(buf, offset, size), writer, copyFlags);
     }
 
+    /**
+     * Copies XML content from an InputStream to the given XMLStreamWriter. The stream is parsed
+     * using UTF-8 encoding.
+     *
+     * @param is
+     *            the InputStream containing XML data
+     * @param writer
+     *            the XMLStreamWriter to write events to
+     * @param flags
+     *            copy option flags controlling which events are written
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyXMLStream(final InputStream is, final XMLStreamWriter writer, final int flags)
             throws XMLStreamException {
         final XMLInputFactory f = XMLInputFactory.newInstance();
@@ -207,6 +280,18 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Copies XML content from a Reader to the given XMLStreamWriter.
+     *
+     * @param reader
+     *            the Reader containing XML character data
+     * @param writer
+     *            the XMLStreamWriter to write events to
+     * @param flags
+     *            copy option flags controlling which events are written
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyXMLStream(final Reader reader, final XMLStreamWriter writer, final int flags)
             throws XMLStreamException {
         final XMLInputFactory f = XMLInputFactory.newInstance();
@@ -218,6 +303,21 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Copies XML events from an XMLStreamReader to an XMLStreamWriter. The behavior is controlled
+     * by the {@code flags} parameter, which determines which event types (e.g. START_DOCUMENT,
+     * END_DOCUMENT, COMMENTs, ignorable whitespace) are written. If {@link #COPY_SINGLE_ELEMENT} is
+     * set, copying stops after the END_ELEMENT matching the first START_ELEMENT is written.
+     *
+     * @param reader
+     *            the XMLStreamReader to read events from
+     * @param writer
+     *            the XMLStreamWriter to write events to, or {@code null} to discard events
+     * @param flags
+     *            copy option flags controlling which events are written
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void copyXMLStream(
             final XMLStreamReader reader,
             final XMLStreamWriter writer,
@@ -471,6 +571,13 @@ public class XmlStreamReaderUtils {
         return exception;
     }
 
+    /**
+     * Returns a new {@link XMLStreamException} wrapping the given cause.
+     *
+     * @param cause
+     *            the underlying cause of the exception
+     * @return a new {@code XMLStreamException} with the given cause
+     */
     public static XMLStreamException createXMLStreamException(final Throwable cause) {
         final XMLStreamException exception = new XMLStreamException();
         exception.initCause(cause);
@@ -962,6 +1069,18 @@ public class XmlStreamReaderUtils {
         return defaultValue;
     }
 
+    /**
+     * Reads sequential START_ELEMENT events from the reader, treating each element's local name as
+     * a key and its text content as the corresponding value, and stores the pairs into the given
+     * map. Reading stops when the current event is no longer a START_ELEMENT.
+     *
+     * @param reader
+     *            the XMLStreamReader positioned at the first START_ELEMENT to read
+     * @param map
+     *            the Map to populate with key-value pairs
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     public static void readKeyValuePairs(final XMLStreamReader reader, final Map<String, String> map)
             throws XMLStreamException {
         final StringBuilder buf = new StringBuilder();
@@ -1374,6 +1493,15 @@ public class XmlStreamReaderUtils {
                 MessageFormat.format("Attribute {0}:{1} is required", namespace, localName));
     }
 
+    /**
+     * Skips any leading whitespace, comments, and processing instructions in the stream, then
+     * requires that the current event is END_DOCUMENT, throwing an exception if it is not.
+     *
+     * @param reader
+     *            the XMLStreamReader to validate
+     * @throws XMLStreamException
+     *             if the current event after skipping whitespace is not END_DOCUMENT
+     */
     public static final void requireEndDocument(final XMLStreamReader reader) throws XMLStreamException {
         skipWhitespace(reader);
         reader.require(XMLStreamConstants.END_DOCUMENT, null, null);
@@ -1411,6 +1539,16 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Skips all content in the stream until the END_ELEMENT matching the current START_ELEMENT has
+     * been consumed. The reader must be positioned at a START_ELEMENT when this method is called.
+     *
+     * @param reader
+     *            the XMLStreamReader positioned at a START_ELEMENT event
+     * @throws XMLStreamException
+     *             if the reader is not at a START_ELEMENT, or if there is an error processing the
+     *             stream
+     */
     public static void skipToMatchingEndElement(final XMLStreamReader reader) throws XMLStreamException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
             throw new XMLStreamException("Starting element expected.");
@@ -1418,6 +1556,15 @@ public class XmlStreamReaderUtils {
         copyXMLStream(reader, null, COPY_SINGLE_ELEMENT);
     }
 
+    /**
+     * Advances the reader past any whitespace-only CHARACTERS, CDATA, SPACE, COMMENT, and
+     * PROCESSING_INSTRUCTION events. Stops at the first event that does not match these types.
+     *
+     * @param reader
+     *            the XMLStreamReader to advance
+     * @throws XMLStreamException
+     *             if there is an error processing the stream
+     */
     @SuppressWarnings("OperatorPrecedence")
     public static final void skipWhitespace(final XMLStreamReader reader) throws XMLStreamException {
         int eventType = reader.getEventType();
@@ -1430,6 +1577,14 @@ public class XmlStreamReaderUtils {
         }
     }
 
+    /**
+     * Wraps an {@link XMLStreamException} in a new {@link XMLStreamException}, preserving the
+     * original as the cause.
+     *
+     * @param e
+     *            the XMLStreamException to wrap
+     * @return a new {@code XMLStreamException} whose cause is {@code e}
+     */
     public static final javax.xml.stream.XMLStreamException wrapException(final XMLStreamException e) {
         return new javax.xml.stream.XMLStreamException(e);
     }

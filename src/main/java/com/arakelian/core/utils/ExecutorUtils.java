@@ -29,9 +29,20 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+/**
+ * Utility methods for managing {@link ExecutorService} instances and {@link ThreadFactory}
+ * objects.
+ */
 public class ExecutorUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutorUtils.class);
 
+    /**
+     * Registers a JVM shutdown hook that closes the given {@link Closeable} when the JVM exits.
+     *
+     * @param closeable
+     *            the resource to close on shutdown
+     * @return the shutdown hook thread that was registered with the runtime
+     */
     public static Thread createShutdownHook(final Closeable closeable) {
         // we don't want to call toString at shutdown
         final String target = closeable.toString();
@@ -56,10 +67,32 @@ public class ExecutorUtils {
         return shutdownHook;
     }
 
+    /**
+     * Returns a new thread factory that uses the simple name of the given class as the thread name
+     * prefix.
+     *
+     * @param clazz
+     *            class whose simple name is used as the thread name prefix
+     * @param daemon
+     *            true for daemon threads
+     * @return thread factory that uses the class name to set the thread name
+     */
     public static ThreadFactory newThreadFactory(final Class<?> clazz, final boolean daemon) {
         return newThreadFactory(clazz, null, daemon);
     }
 
+    /**
+     * Returns a new thread factory that uses the simple name of the given class, plus an optional
+     * suffix, as the thread name prefix.
+     *
+     * @param clazz
+     *            class whose simple name is used as the thread name prefix
+     * @param suffix
+     *            optional suffix appended to the class name; may be null or empty
+     * @param daemon
+     *            true for daemon threads
+     * @return thread factory that uses the class name and suffix to set the thread name
+     */
     @SuppressWarnings("OrphanedFormatString")
     public static ThreadFactory newThreadFactory(
             final Class<?> clazz,
@@ -100,6 +133,12 @@ public class ExecutorUtils {
                 .build();
     }
 
+    /**
+     * Removes a previously registered JVM shutdown hook.
+     *
+     * @param shutdownHook
+     *            the shutdown hook thread to remove; ignored if null
+     */
     public static void removeShutdownHook(final Thread shutdownHook) {
         if (shutdownHook != null) {
             try {
@@ -110,6 +149,21 @@ public class ExecutorUtils {
         }
     }
 
+    /**
+     * Shuts down the given {@link ExecutorService}, waiting up to the specified timeout for
+     * in-flight tasks to complete.
+     *
+     * @param service
+     *            the executor service to shut down; returns false immediately if null
+     * @param timeout
+     *            maximum time to wait for termination; pass 0 to skip waiting
+     * @param unit
+     *            time unit for the timeout
+     * @param forceTermination
+     *            if true, calls {@link ExecutorService#shutdownNow()} when the timeout elapses
+     *            without the service terminating
+     * @return true if the service terminated within the timeout, false otherwise
+     */
     public static boolean shutdown(
             final ExecutorService service,
             final long timeout,

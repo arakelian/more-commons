@@ -219,6 +219,15 @@ public class MoreStringUtils {
         }
     }
 
+    /**
+     * Replaces Unicode typography characters (smart quotes, em dashes, non-breaking spaces, etc.)
+     * in the given string with their nearest ASCII equivalents.
+     *
+     * @param value
+     *            string which may contain Unicode typography characters
+     * @return string with Unicode typography characters replaced by ASCII equivalents, or the
+     *         original value if no substitutions were necessary
+     */
     public static String normalizeTypography(final String value) {
         if (value == null || value.length() == 0) {
             return value;
@@ -421,6 +430,16 @@ public class MoreStringUtils {
         return Collections.<String> emptyList();
     }
 
+    /**
+     * Formats the given duration as a human-readable string, choosing the most appropriate time
+     * unit abbreviation (e.g. "ns", "ms", "seconds").
+     *
+     * @param duration
+     *            duration value expressed in {@code units}
+     * @param units
+     *            time unit of the {@code duration} parameter
+     * @return formatted duration string with an appropriate time unit abbreviation
+     */
     public static String toString(final long duration, final TimeUnit units) {
         // adapted from Guava StopWatch.toString()
         final long nanos = NANOSECONDS.convert(duration, units);

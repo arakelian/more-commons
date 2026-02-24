@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 
 import com.google.common.net.MediaType;
@@ -37,10 +39,10 @@ public class MediaTypeUtilsTest {
         // return the "preferred" one (e.g. the one configured first)
         assertEquals(
                 ".gif",
-                MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.GIF.toString().toUpperCase()));
+                MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.GIF.toString().toUpperCase(Locale.ROOT)));
         assertEquals(
                 ".jpg",
-                MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.JPEG.toString().toUpperCase()));
+                MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.JPEG.toString().toUpperCase(Locale.ROOT)));
         assertEquals(".tif", MediaTypeUtils.getPrimaryExtensionOfMediaType(MediaType.TIFF.toString()));
         assertEquals(
                 ".doc",

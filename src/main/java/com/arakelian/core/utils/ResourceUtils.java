@@ -23,6 +23,9 @@ import java.net.URL;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+/**
+ * Utility methods for reading classpath resources.
+ */
 public class ResourceUtils {
     /**
      * Convert a resource file on the classpath into a String

@@ -22,6 +22,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks an element (method return value, field, parameter, or type) as potentially nullable,
+ * indicating that {@code null} is an acceptable value.
+ */
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE,
         ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

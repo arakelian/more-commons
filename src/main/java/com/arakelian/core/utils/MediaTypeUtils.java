@@ -36,6 +36,7 @@ import static com.google.common.net.MediaType.ZIP;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -54,6 +55,12 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.net.MediaType;
 
+/**
+ * Utility methods for working with media (MIME) types and file extensions.
+ *
+ * <p>Provides bidirectional mappings between content types and file extensions, as well as
+ * helpers for validating and classifying media types.
+ */
 public class MediaTypeUtils {
     /** List of dangerous file extensions **/
     private static final Set<String> DANGEROUS_EXTENSIONS;
@@ -182,9 +189,9 @@ public class MediaTypeUtils {
             // however, we want to ensure that they're lower case in our internal maps so that we
             // match them correctly
             Preconditions
-                    .checkState(extension.toLowerCase().equals(extension), extension + " is not lowercase");
+                    .checkState(extension.toLowerCase(Locale.ROOT).equals(extension), "%s is not lowercase", extension);
             Preconditions
-                    .checkState(mediaType.toLowerCase().equals(mediaType), mediaType + " is not lowercase");
+                    .checkState(mediaType.toLowerCase(Locale.ROOT).equals(mediaType), "%s is not lowercase", mediaType);
             LOGGER.info("Mapping extension {} to {}", extension, mediaType);
             reverse.put(extension, mediaType);
         }
@@ -198,24 +205,57 @@ public class MediaTypeUtils {
         CONTENT_TYPE_TO_IMAGEIO_TYPE.put(MediaType.TIFF.toString(), "tif");
     }
 
+    /**
+     * Returns all file extensions registered for the given media type.
+     *
+     * @param contentType
+     *            media type (e.g. {@code "image/jpeg"})
+     * @return collection of file extensions (including leading period), or an empty collection if
+     *         the media type is not recognized
+     */
     public static Collection<String> getExtensionOfMediaType(final String contentType) {
-        final String type = contentType.toLowerCase();
+        final String type = contentType.toLowerCase(Locale.ROOT);
         return contentType != null && CONTENT_TYPE_TO_EXTENSION.containsKey(type)
                 ? CONTENT_TYPE_TO_EXTENSION.get(type)
                 : Collections.<String> emptyList();
     }
 
+    /**
+     * Returns all media types registered for the given file extension.
+     *
+     * @param extension
+     *            file extension (e.g. {@code ".jpg"} or {@code "jpg"})
+     * @return collection of media types, or an empty collection if the extension is not recognized
+     */
     public static Collection<String> getMediaTypeOfExtension(final String extension) {
-        final String ext = extension.toLowerCase();
+        final String ext = extension.toLowerCase(Locale.ROOT);
         return extension != null && EXTENSION_TO_CONTENT_TYPE.containsKey(ext)
                 ? EXTENSION_TO_CONTENT_TYPE.get(ext)
                 : Collections.<String> emptyList();
     }
 
+    /**
+     * Returns the primary (preferred) file extension for the given media type, or {@code null} if
+     * the media type is not recognized.
+     *
+     * @param contentType
+     *            media type (e.g. {@code "image/jpeg"})
+     * @return primary file extension (including leading period), or {@code null}
+     */
     public static String getPrimaryExtensionOfMediaType(final String contentType) {
         return getPrimaryExtensionOfMediaType(contentType, null);
     }
 
+    /**
+     * Returns the primary (preferred) file extension for the given media type, or a default value
+     * if the media type is not recognized.
+     *
+     * @param contentType
+     *            media type (e.g. {@code "image/jpeg"})
+     * @param defaultExtension
+     *            value to return when no extension is found for the given media type
+     * @return primary file extension (including leading period), or {@code defaultExtension}
+     */
     public static String getPrimaryExtensionOfMediaType(
             final String contentType,
             final String defaultExtension) {
@@ -242,10 +282,24 @@ public class MediaTypeUtils {
         return isSafeExtension(extension) ? "." + extension : StringUtils.EMPTY;
     }
 
+    /**
+     * Returns true if the given MIME type represents an image (i.e. starts with {@code "image/"}).
+     *
+     * @param mimeType
+     *            MIME type to test
+     * @return true if the MIME type is an image type
+     */
     public static boolean isImage(final String mimeType) {
         return StringUtils.startsWith(mimeType, "image/");
     }
 
+    /**
+     * Returns true if the given MIME type is {@code application/pdf}.
+     *
+     * @param mimeType
+     *            MIME type to test
+     * @return true if the MIME type is {@code application/pdf}
+     */
     public static boolean isPdf(final String mimeType) {
         return MediaType.PDF.toString().equalsIgnoreCase(mimeType);
     }
