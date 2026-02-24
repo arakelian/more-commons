@@ -75,6 +75,10 @@ import com.google.common.base.Preconditions;
  *      "http://time4j.net/tutorial/appendix.html">http://time4j.net/tutorial/appendix.html</a>
  **/
 public class DateUtils {
+    /**
+     * Represents the units of an epoch timestamp and provides methods to detect and convert between
+     * nanoseconds, microseconds, milliseconds, and seconds since the Unix epoch.
+     */
     public enum EpochUnits {
         NANOSECONDS() {
             @Override
@@ -153,13 +157,34 @@ public class DateUtils {
             }
         }
 
+        /**
+         * Returns true if the given epoch value is consistent with this unit.
+         *
+         * @param epoch
+         *            the epoch timestamp to test
+         * @return true if the value falls within the expected range for this unit
+         */
         public abstract boolean isValid(final long epoch);
 
+        /**
+         * Converts the given epoch value to an {@link Instant} by first converting to milliseconds.
+         *
+         * @param value
+         *            the epoch timestamp in this unit
+         * @return the corresponding {@link Instant}
+         */
         public Instant toInstant(final long value) {
             final long epochMillis = toMillis(value);
             return Instant.ofEpochMilli(epochMillis);
         }
 
+        /**
+         * Converts the given epoch value from this unit to milliseconds.
+         *
+         * @param value
+         *            the epoch timestamp in this unit
+         * @return the equivalent value in milliseconds
+         */
         public abstract long toMillis(long value);
     }
 
@@ -306,6 +331,7 @@ public class DateUtils {
                     .appendPattern("[uuuuMMdd]") //
                     .optionalStart().append(DateTimeFormatter.ISO_INSTANT).optionalEnd());
 
+    /** The UTC time zone, obtained via {@link ZoneId#of(String)} with {@code "Z"}. **/
     @SuppressWarnings("ZoneIdOfZ")
     public static final ZoneId UTC_ZONE = ZoneId.of("Z");
 

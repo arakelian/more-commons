@@ -147,6 +147,12 @@ public enum IsoCurrencyCode {
         this.abbreviation = abbreviation;
     }
 
+    /**
+     * Creates a {@link NumberFormat} configured for formatting currency values with
+     * {@link RoundingMode#HALF_EVEN} rounding.
+     *
+     * @return a currency {@link NumberFormat} instance
+     */
     public NumberFormat createNumberFormat() {
         final Locale locale = country == IsoCountryCode.GB ? Locale.UK : Locale.US;
         final NumberFormat format = NumberFormat.getCurrencyInstance(locale);
@@ -154,26 +160,57 @@ public enum IsoCurrencyCode {
         return format;
     }
 
+    /**
+     * Returns the abbreviated display string for this currency.
+     *
+     * @return the currency abbreviation, or {@code null} if not available
+     */
     public String getAbbreviation() {
         return this.abbreviation;
     }
 
+    /**
+     * Returns the country associated with this currency.
+     *
+     * @return the {@link IsoCountryCode}, or {@code null} for currencies not tied to a single country
+     */
     public IsoCountryCode getCountry() {
         return country;
     }
 
+    /**
+     * Returns the full descriptive name of this currency.
+     *
+     * @return the currency name, e.g. "United States Dollar"
+     */
     public String getFullName() {
         return this.fullName;
     }
 
+    /**
+     * Returns the HTML entity representation of the currency symbol.
+     *
+     * @return the HTML entity string, or {@code null} if not available
+     */
     public String getHtml() {
         return this.html;
     }
 
+    /**
+     * Returns a resource bundle key for this currency, composed of the fully qualified class name
+     * and the enum constant name.
+     *
+     * @return the resource bundle key
+     */
     public String getResourceBundleKey() {
         return getClass().getName() + "." + name();
     }
 
+    /**
+     * Returns the Unicode symbol for this currency.
+     *
+     * @return the currency symbol, or {@code null} if not available
+     */
     public String getSymbol() {
         return this.symbol;
     }

@@ -27,6 +27,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for {@link MoreStringUtils}.
+ */
 public class MoreStringUtilsTest {
     private static final String AMEX_CC = "378282246310005";
 

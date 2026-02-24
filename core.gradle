@@ -53,6 +53,10 @@ test {
     useJUnitPlatform()
 }
 
+javadoc {
+    options.addStringOption('Xdoclint:all,-missing', '-quiet')
+}
+
 
 // -------------------------------------------
 //  JAVA COMPILER
