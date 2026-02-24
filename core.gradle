@@ -180,6 +180,31 @@ eclipse {
 
 
 // -------------------------------------------
+//  ECLIPSE FACTORY PATH
+// -------------------------------------------
+
+tasks.register('eclipseFactoryPath') {
+    description = 'Generates the Eclipse .factorypath file for annotation processors.'
+
+    def outputFile = project.file('.factorypath')
+    def apConfig = configurations.annotationProcessor
+
+    inputs.files(apConfig)
+    outputs.file(outputFile)
+
+    doLast {
+        def xml = '<?xml version="1.0" encoding="UTF-8"?>\n<factorypath>\n'
+        apConfig.resolve().sort { it.name }.each { jar ->
+            xml += '\t<factorypathentry kind="EXTJAR" id="' + jar.absolutePath +
+                   '" enabled="true" runInBatchMode="false"/>\n'
+        }
+        xml += '</factorypath>\n'
+        outputFile.text = xml
+    }
+}
+
+
+// -------------------------------------------
 //  README
 // -------------------------------------------
 
