@@ -61,7 +61,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
- * Generic date parsing and conversion utilities
+ * Generic date parsing and conversion utilities.
+ *
+ * <p>
+ * Provides null-safe methods for parsing, formatting, and converting between Java date/time types
+ * including {@link Date}, {@link Instant}, {@link LocalDate}, {@link LocalDateTime}, and
+ * {@link ZonedDateTime}. All UTC-specific conversions use {@link ZoneOffset#UTC}.
+ * </p>
  *
  * Note: Consider at some point removing dependency on joda-time and switching to Java 8 time.
  *
@@ -305,6 +311,13 @@ public class DateUtils {
 
     private static final Random JVM_RANDOM = new Random();
 
+    /**
+     * Truncates the given date/time to the start of the day (midnight).
+     *
+     * @param date
+     *            a zoned date/time value, or null
+     * @return the given date/time truncated to midnight, or null if the input is null
+     **/
     public static ZonedDateTime atStartOfDay(final ZonedDateTime date) {
         return date != null ? date.truncatedTo(ChronoUnit.DAYS) : null;
     }
@@ -327,6 +340,20 @@ public class DateUtils {
                 .withResolverStyle(ResolverStyle.STRICT);
     }
 
+    /**
+     * Compares two {@link Date} objects in a null-safe manner.
+     *
+     * <p>
+     * A null value is considered less than any non-null value. Two null values are considered equal.
+     * </p>
+     *
+     * @param d1
+     *            the first date, may be null
+     * @param d2
+     *            the second date, may be null
+     * @return a negative integer if d1 is less than d2, zero if they are equal, or a positive
+     *         integer if d1 is greater than d2
+     **/
     public static int compare(final Date d1, final Date d2) {
         if (d1 == null) {
             if (d2 != null) {
@@ -346,6 +373,19 @@ public class DateUtils {
         return 0;
     }
 
+    /**
+     * Builds a {@link DateTimeFormatter} for a day-month-year pattern.
+     *
+     * @param monthStyle
+     *            the text style to use for the month name, or null to use a numeric month value
+     * @param daySeparator
+     *            the literal separator appended after the day field
+     * @param monthSeparator
+     *            the literal separator appended after the month field
+     * @param yearDigits
+     *            the number of year digits to use; must be 2 or 4
+     * @return a {@link DateTimeFormatter} for the described day-month-year pattern
+     **/
     public static DateTimeFormatter dayMonthYear(
             final TextStyle monthStyle,
             final String daySeparator,
@@ -372,6 +412,20 @@ public class DateUtils {
         });
     }
 
+    /**
+     * Returns true if two {@link ZonedDateTime} values represent the same calendar date (year,
+     * month, and day of month).
+     *
+     * <p>
+     * Two null values are considered equal. A null value and a non-null value are not equal.
+     * </p>
+     *
+     * @param lhs
+     *            the left-hand side date/time, may be null
+     * @param rhs
+     *            the right-hand side date/time, may be null
+     * @return true if both values share the same year, month, and day of month
+     **/
     public static boolean hasSameDate(final ZonedDateTime lhs, final ZonedDateTime rhs) {
         if (lhs == null) {
             return rhs == null;
@@ -384,6 +438,19 @@ public class DateUtils {
         return true;
     }
 
+    /**
+     * Returns true if the given {@link Date} has a non-zero time component.
+     *
+     * <p>
+     * The check is performed by computing the remainder of the date's epoch milliseconds divided by
+     * the number of milliseconds in a day. Returns false if the date is null.
+     * </p>
+     *
+     * @param date
+     *            the date to test, may be null
+     * @return true if the date has a non-zero time component, false if the date is null or
+     *         represents exactly midnight UTC
+     **/
     public static boolean hasTimeComponent(final Date date) {
         if (date != null) {
             final long epochMillis = date.toInstant().toEpochMilli();
@@ -393,6 +460,19 @@ public class DateUtils {
         return false;
     }
 
+    /**
+     * Returns true if the given {@link ZonedDateTime} has a non-zero time component.
+     *
+     * <p>
+     * A non-zero time component means the hour, minute, second, or nanosecond field is non-zero.
+     * Returns false if the date/time is null.
+     * </p>
+     *
+     * @param dateTime
+     *            the date/time to test, may be null
+     * @return true if the date/time has any non-zero time field, false if the date/time is null or
+     *         represents exactly midnight
+     **/
     public static boolean hasTimeComponent(final ZonedDateTime dateTime) {
         return dateTime != null && (dateTime.getHour() != 0 //
                 || dateTime.getMinute() != 0 //
@@ -400,6 +480,14 @@ public class DateUtils {
                 || dateTime.getNano() != 0);
     }
 
+    /**
+     * Returns true if the given {@link ZonedDateTime} is in the UTC zone.
+     *
+     * @param date
+     *            the date/time to test, may be null
+     * @return true if the date/time's zone is UTC, false if the date/time is null or has a
+     *         different zone
+     **/
     public static boolean isUtc(final ZonedDateTime date) {
         if (date == null) {
             return false;
@@ -407,6 +495,21 @@ public class DateUtils {
         return UTC_ZONE.equals(date.getZone());
     }
 
+    /**
+     * Builds a {@link DateTimeFormatter} for a month-day-year pattern.
+     *
+     * @param monthStyle
+     *            the text style to use for the month name, or null to use a numeric month value
+     * @param monthSeparator
+     *            the literal separator appended after the month field
+     * @param daySeparator
+     *            the literal separator appended after the day field
+     * @param yearDigits
+     *            the number of year digits to use; must be 2 or 4
+     * @param time
+     *            if true, appends a time component to the formatter
+     * @return a {@link DateTimeFormatter} for the described month-day-year pattern
+     **/
     public static DateTimeFormatter monthDayYear(
             final TextStyle monthStyle,
             final String monthSeparator,
@@ -440,10 +543,33 @@ public class DateUtils {
         });
     }
 
+    /**
+     * Returns the current date and time in the UTC zone.
+     *
+     * @return the current {@link ZonedDateTime} in UTC
+     **/
     public static ZonedDateTime nowWithZoneUtc() {
         return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
+    /**
+     * Parses a date string and returns a temporal value, or null if parsing fails.
+     *
+     * <p>
+     * This is the null-returning variant of {@link #parseChecked}. Parse failures are logged at
+     * TRACE level and suppressed.
+     * </p>
+     *
+     * @param <T>
+     *            the type of temporal value to return
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @param zoneIfNotSpecified
+     *            the zone to apply if the input does not include zone information
+     * @param query
+     *            the temporal query used to convert the parsed result
+     * @return the parsed temporal value, or null if the text is blank or cannot be parsed
+     **/
     public static <T> T parse(
             final String text,
             final ZoneId zoneIfNotSpecified,
@@ -458,6 +584,27 @@ public class DateUtils {
         }
     }
 
+    /**
+     * Parses a date string and returns a temporal value, throwing {@link DateTimeParseException} if
+     * parsing fails.
+     *
+     * <p>
+     * Returns null if the text is blank. First attempts to parse using the zone embedded in the
+     * input string; if that fails, retries with the provided fallback zone.
+     * </p>
+     *
+     * @param <T>
+     *            the type of temporal value to return
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @param zoneIfNotSpecified
+     *            the zone to apply if the input does not include zone information
+     * @param query
+     *            the temporal query used to convert the parsed result
+     * @return the parsed temporal value, or null if the text is blank
+     * @throws DateTimeParseException
+     *             if the text cannot be parsed
+     **/
     public static <T> T parseChecked(
             final String text,
             final ZoneId zoneIfNotSpecified,
@@ -476,6 +623,17 @@ public class DateUtils {
         }
     }
 
+    /**
+     * Returns a random {@link ZonedDateTime} in UTC within the given inclusive range.
+     *
+     * @param random
+     *            the random number generator to use
+     * @param from
+     *            the lower bound of the range (inclusive)
+     * @param to
+     *            the upper bound of the range (inclusive)
+     * @return a random {@link ZonedDateTime} in UTC between {@code from} and {@code to}
+     **/
     public static ZonedDateTime randomZonedDateTimeUtc(
             final Random random,
             final ZonedDateTime from,
@@ -487,10 +645,36 @@ public class DateUtils {
         return DateUtils.toZonedDateTimeUtc(epoch, EpochUnits.MILLISECONDS);
     }
 
+    /**
+     * Returns a random {@link ZonedDateTime} in UTC within the given inclusive range, using the
+     * JVM's shared {@link Random} instance.
+     *
+     * @param from
+     *            the lower bound of the range (inclusive)
+     * @param to
+     *            the upper bound of the range (inclusive)
+     * @return a random {@link ZonedDateTime} in UTC between {@code from} and {@code to}
+     **/
     public static ZonedDateTime randomZonedDateTimeUtc(final ZonedDateTime from, final ZonedDateTime to) {
         return randomZonedDateTimeUtc(JVM_RANDOM, from, to);
     }
 
+    /**
+     * Returns the absolute elapsed time between two dates in the specified units.
+     *
+     * <p>
+     * Both dates are converted to UTC before the difference is computed. The result is always
+     * non-negative regardless of argument order.
+     * </p>
+     *
+     * @param firstDate
+     *            the first date/time
+     * @param secondDate
+     *            the second date/time
+     * @param units
+     *            the {@link ChronoUnit} in which to express the result; must be non-null
+     * @return the absolute elapsed time between the two dates in the given units
+     **/
     public static long timeBetween(
             final ZonedDateTime firstDate,
             final ZonedDateTime secondDate,
@@ -501,22 +685,59 @@ public class DateUtils {
         return Math.abs(units.between(first, after));
     }
 
+    /**
+     * Converts an {@link Instant} to a {@link Date}.
+     *
+     * @param instant
+     *            the instant to convert, may be null
+     * @return the equivalent {@link Date}, or null if the input is null
+     **/
     public static Date toDate(final Instant instant) {
         return instant != null ? Date.from(instant) : null;
     }
 
+    /**
+     * Converts a {@link LocalDateTime} to a {@link Date} using the system default zone.
+     *
+     * @param date
+     *            the local date/time to convert, may be null
+     * @return the equivalent {@link Date} in the system default zone, or null if the input is null
+     **/
     public static Date toDate(final LocalDateTime date) {
         return date != null ? toDate(date.atZone(ZoneOffset.systemDefault())) : null;
     }
 
+    /**
+     * Converts a {@link LocalDateTime} to a {@link Date} using the given {@link ZoneOffset}.
+     *
+     * @param date
+     *            the local date/time to convert, may be null
+     * @param offset
+     *            the zone offset to apply when converting
+     * @return the equivalent {@link Date} at the given offset, or null if the input date is null
+     **/
     public static Date toDate(final LocalDateTime date, final ZoneOffset offset) {
         return date != null ? toDate(date.toInstant(offset)) : null;
     }
 
+    /**
+     * Converts a {@link ZonedDateTime} to a {@link Date}.
+     *
+     * @param date
+     *            the zoned date/time to convert, may be null
+     * @return the equivalent {@link Date}, or null if the input is null
+     **/
     public static Date toDate(final ZonedDateTime date) {
         return date != null ? Date.from(date.toInstant()) : null;
     }
 
+    /**
+     * Converts a {@link ZonedDateTime} to epoch milliseconds in UTC.
+     *
+     * @param date
+     *            the zoned date/time to convert; must be non-null
+     * @return the number of milliseconds since the Unix epoch (January 1, 1970, 00:00:00 UTC)
+     **/
     public static long toEpochMillisUtc(final ZonedDateTime date) {
         Preconditions.checkArgument(date != null, "date must be non-null");
         return toUtc(date).toInstant().toEpochMilli();
@@ -535,18 +756,63 @@ public class DateUtils {
         return instant;
     }
 
+    /**
+     * Parses a date string to a {@link LocalDateTime}, returning null if parsing fails.
+     *
+     * <p>
+     * Uses the system default zone when the input does not specify one.
+     * </p>
+     *
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @return the parsed {@link LocalDateTime}, or null if the text is blank or cannot be parsed
+     **/
     public static LocalDateTime toLocalDateTime(final String text) {
         return parse(text, ZoneOffset.systemDefault(), LocalDateTime::from);
     }
 
+    /**
+     * Parses a date string to a {@link LocalDateTime}, throwing {@link DateTimeParseException} if
+     * parsing fails.
+     *
+     * <p>
+     * Uses the system default zone when the input does not specify one.
+     * </p>
+     *
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @return the parsed {@link LocalDateTime}, or null if the text is blank
+     * @throws DateTimeParseException
+     *             if the text cannot be parsed
+     **/
     public static LocalDateTime toLocalDateTimeChecked(final String text) throws DateTimeParseException {
         return parseChecked(text, ZoneOffset.systemDefault(), LocalDateTime::from);
     }
 
+    /**
+     * Converts a millisecond duration to nanoseconds.
+     *
+     * @param millis
+     *            the number of milliseconds to convert
+     * @return the equivalent number of nanoseconds
+     **/
     public static long toNanos(final int millis) {
         return TimeUnit.MILLISECONDS.toNanos(millis);
     }
 
+    /**
+     * Parses a date string and returns it in ISO 8601 format in UTC.
+     *
+     * <p>
+     * Equivalent to parsing the string with {@link #toZonedDateTimeUtc(String)} and then
+     * formatting the result with {@link #toStringIsoFormat(ZonedDateTime)}.
+     * </p>
+     *
+     * @param date
+     *            the date string to parse, may be null or blank
+     * @return the date in ISO 8601 format (e.g., {@code 2017-12-29T03:21:24.564000000Z}), or null
+     *         if the input cannot be parsed
+     **/
     public static String toStringIsoFormat(final String date) {
         return toStringIsoFormat(toZonedDateTimeUtc(date));
     }
@@ -583,22 +849,67 @@ public class DateUtils {
         return date != null ? date.withZoneSameInstant(ZoneOffset.UTC).format(ISO_8601_NANOS) : null;
     }
 
+    /**
+     * Converts a {@link ZonedDateTime} to the UTC zone, preserving the instant in time.
+     *
+     * @param date
+     *            the zoned date/time to convert, may be null
+     * @return the equivalent {@link ZonedDateTime} in UTC, or null if the input is null
+     **/
     public static ZonedDateTime toUtc(final ZonedDateTime date) {
         return date != null ? date.withZoneSameInstant(ZoneOffset.UTC) : null;
     }
 
+    /**
+     * Converts a {@link Date} to a {@link ZonedDateTime} in UTC.
+     *
+     * <p>
+     * Handles {@link java.sql.Date} instances, which do not support {@link Date#toInstant()}.
+     * </p>
+     *
+     * @param date
+     *            the date to convert, may be null
+     * @return the equivalent {@link ZonedDateTime} in UTC, or null if the input is null
+     **/
     public static ZonedDateTime toZonedDateTimeUtc(final Date date) {
         return date != null ? toZonedDateTimeUtc(toInstant(date)) : null;
     }
 
+    /**
+     * Converts an {@link Instant} to a {@link ZonedDateTime} in UTC.
+     *
+     * @param instant
+     *            the instant to convert, may be null
+     * @return the equivalent {@link ZonedDateTime} in UTC, or null if the input is null
+     **/
     public static ZonedDateTime toZonedDateTimeUtc(final Instant instant) {
         return instant != null ? ZonedDateTime.ofInstant(instant, ZoneOffset.UTC) : null;
     }
 
+    /**
+     * Creates a {@link ZonedDateTime} in UTC from the given year, month, and day of month, at the
+     * start of the day (midnight).
+     *
+     * @param year
+     *            the year
+     * @param month
+     *            the month of the year
+     * @param dayOfMonth
+     *            the day of the month
+     * @return a {@link ZonedDateTime} in UTC at midnight on the specified date
+     **/
     public static ZonedDateTime toZonedDateTimeUtc(final int year, final Month month, final int dayOfMonth) {
         return toZonedDateTimeUtc(LocalDate.of(year, month, dayOfMonth));
     }
 
+    /**
+     * Converts a {@link LocalDate} to a {@link ZonedDateTime} at the start of the day in UTC.
+     *
+     * @param date
+     *            the local date to convert, may be null
+     * @return a {@link ZonedDateTime} at midnight UTC on the given date, or null if the input is
+     *         null
+     **/
     public static ZonedDateTime toZonedDateTimeUtc(final LocalDate date) {
         return date != null ? date.atStartOfDay(UTC_ZONE) : null;
     }
@@ -634,20 +945,76 @@ public class DateUtils {
         return ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
     }
 
+    /**
+     * Parses a date string to a {@link ZonedDateTime} in UTC, returning null if parsing fails.
+     *
+     * <p>
+     * Uses the system default zone when the input does not specify one, then converts the result to
+     * UTC.
+     * </p>
+     *
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @return the parsed {@link ZonedDateTime} in UTC, or null if the text is blank or cannot be
+     *         parsed
+     **/
     public static ZonedDateTime toZonedDateTimeUtc(final String text) {
         final ZonedDateTime date = parse(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
     }
 
+    /**
+     * Parses a date string to a {@link ZonedDateTime} in UTC, throwing
+     * {@link DateTimeParseException} if parsing fails.
+     *
+     * <p>
+     * Uses the system default zone when the input does not specify one, then converts the result to
+     * UTC.
+     * </p>
+     *
+     * @param text
+     *            the date string to parse, may be null or blank
+     * @return the parsed {@link ZonedDateTime} in UTC, or null if the text is blank
+     * @throws DateTimeParseException
+     *             if the text cannot be parsed
+     **/
     public static ZonedDateTime toZonedDateTimeUtcChecked(final String text) throws DateTimeParseException {
         final ZonedDateTime date = parseChecked(text, ZoneOffset.systemDefault(), ZonedDateTime::from);
         return date != null ? toUtc(date) : null;
     }
 
+    /**
+     * Truncates a {@link ZonedDateTime} to date-only precision by converting to a {@link Date} and
+     * back to a UTC {@link ZonedDateTime}.
+     *
+     * <p>
+     * The resulting value has its time component set to midnight UTC.
+     * </p>
+     *
+     * @param date
+     *            the zoned date/time to truncate, may be null
+     * @return a {@link ZonedDateTime} in UTC with the time component removed, or null if the input
+     *         is null
+     **/
     public static ZonedDateTime withDatePrecision(final ZonedDateTime date) {
         return DateUtils.toZonedDateTimeUtc(DateUtils.toDate(date));
     }
 
+    /**
+     * Builds a {@link DateTimeFormatter} for a year-month-day pattern.
+     *
+     * @param monthStyle
+     *            the text style to use for the month name, or null to use a numeric month value
+     * @param yearSeparator
+     *            the literal separator appended after the year field
+     * @param monthSeparator
+     *            the literal separator appended after the month field
+     * @param yearDigits
+     *            the number of year digits to use; must be 2 or 4
+     * @param time
+     *            if true, appends a time component to the formatter
+     * @return a {@link DateTimeFormatter} for the described year-month-day pattern
+     **/
     public static DateTimeFormatter yearMonthDay(
             final TextStyle monthStyle,
             final String yearSeparator,

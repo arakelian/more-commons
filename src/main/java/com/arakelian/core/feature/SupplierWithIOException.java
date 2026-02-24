@@ -19,6 +19,20 @@ package com.arakelian.core.feature;
 
 import java.io.IOException;
 
+/**
+ * A functional interface similar to {@link java.util.function.Supplier} whose {@code get} method
+ * may throw an {@link java.io.IOException}.
+ *
+ * @param <T>
+ *            the type of result supplied
+ */
 public interface SupplierWithIOException<T> {
+    /**
+     * Returns a result, potentially throwing an {@link java.io.IOException}.
+     *
+     * @return a result
+     * @throws IOException
+     *             if the result cannot be produced due to an I/O error
+     */
     public T get() throws IOException;
 }

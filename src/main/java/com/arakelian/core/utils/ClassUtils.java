@@ -20,6 +20,9 @@ package com.arakelian.core.utils;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+/**
+ * Utility methods for class loading operations.
+ */
 public class ClassUtils {
     /**
      * Get the Class from the class name.

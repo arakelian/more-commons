@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Locale;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -55,8 +56,8 @@ public class MoreStringUtilsTest {
     public void testIsUuid() {
         for (int i = 0; i < 1000; i++) {
             final String uuid = MoreStringUtils.uuid();
-            assertTrue(MoreStringUtils.isUuid(uuid.toLowerCase()), uuid.toLowerCase() + " is not valid uuid");
-            assertTrue(MoreStringUtils.isUuid(uuid.toUpperCase()), uuid.toUpperCase() + " is not valid uuid");
+            assertTrue(MoreStringUtils.isUuid(uuid.toLowerCase(Locale.ROOT)), uuid.toLowerCase(Locale.ROOT) + " is not valid uuid");
+            assertTrue(MoreStringUtils.isUuid(uuid.toUpperCase(Locale.ROOT)), uuid.toUpperCase(Locale.ROOT) + " is not valid uuid");
         }
     }
 
