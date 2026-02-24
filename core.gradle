@@ -10,27 +10,6 @@ buildscript {
 
 
 ext {
-    // useful macros, you can add your own
-    macros = [
-        'all' : [
-            'clean',
-            'classpath',
-            'build',
-            'minify',
-            'publishToMavenLocal'
-        ],
-        'sonatype' : [
-            'publishAndReleaseToMavenCentral'
-        ],
-        'classpath' : [
-            'cleanEclipseClasspath',
-            'eclipseClasspath',
-            'eclipseFactoryPath',
-            'cleanIdeaModule',
-            'ideaModule'
-        ],
-    ]
-    
     // package patterns to exclude from Eclipse
     excludeFromEclipse = []
 }
@@ -62,10 +41,7 @@ javadoc {
 //  JAVA COMPILER
 // -------------------------------------------
 
-tasks.withType(JavaCompile) { task ->
-    sourceCompatibility = 21
-    targetCompatibility = 21
-
+tasks.withType(JavaCompile).configureEach { task ->
     // always UTF-8
     options.encoding = 'UTF-8'
 
@@ -218,30 +194,19 @@ task readme {
 
 
 // -------------------------------------------
-//  SHORTCUT TASKS
+//  LIFECYCLE TASKS
 // -------------------------------------------
 
-
-// This code allows us to define aliases, such as "all", so that when we do "gradle all",
-// we can substitute in a series of other gradle tasks
-// see: https://caffeineinduced.wordpress.com/2015/01/25/run-a-list-of-gradle-tasks-in-specific-order/
-def newTasks = []
-
-// gradle respects ordering of tasks specified on command line, so we replace shortcuts
-// with equivalent commands as though they were specified by user
-gradle.startParameter.taskNames.each { param ->
-    def macro = project.ext.macros[param]
-    if( macro ) {
-        macro.each { task ->
-            if(project.tasks.names.contains(task)) {
-                newTasks << task
-            }
-        }
-    } else {
-        newTasks << param
-    }
+tasks.register('classpath') {
+    dependsOn 'cleanEclipseClasspath', 'eclipseClasspath', 'eclipseFactoryPath',
+              'cleanIdeaModule', 'ideaModule'
 }
 
-// replace command line arguments
-gradle.startParameter.taskNames = newTasks.flatten()
+tasks.register('sonatype') {
+    dependsOn 'publishAndReleaseToMavenCentral'
+}
+
+tasks.register('all') {
+    dependsOn 'clean', 'classpath', 'build', 'publishToMavenLocal'
+}
  

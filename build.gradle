@@ -7,17 +7,23 @@ plugins {
     id 'idea'
 
     // keep dependencies up-to-date!
-    id 'com.github.ben-manes.versions' version '0.53.0'
+    alias libs.plugins.versions
 
     // to ensure clean code
-    id "net.ltgt.errorprone" version "5.0.0"
+    alias libs.plugins.errorprone
 
     // for deployment to Maven Central via Central Portal
-    id "com.vanniktech.maven.publish" version "0.36.0"
+    alias libs.plugins.maven.publish
 }
 
-group   = 'com.arakelian'
-version = '5.1.0'
+group   = providers.gradleProperty('GROUP').get()
+version = providers.gradleProperty('VERSION_NAME').get()
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 apply from: "core.gradle"
 
@@ -58,33 +64,33 @@ mavenPublishing {
 }
 
 dependencies {
-    annotationProcessor 'org.immutables:value:2.12.1'
-    testAnnotationProcessor 'org.immutables:value:2.12.1'
-    compileOnly 'org.immutables:value:2.12.1'
+    annotationProcessor libs.immutables.value
+    testAnnotationProcessor libs.immutables.value
+    compileOnly libs.immutables.value
 
     // annotations
-    api 'org.immutables:value-annotations:2.12.1'
+    api libs.immutables.annotations
 
     // configure errorprone version
-    errorprone 'com.google.errorprone:error_prone_core:2.47.0'
+    errorprone libs.errorprone.core
 
-    api 'com.google.guava:guava:33.5.0-jre'
-    api 'commons-io:commons-io:2.21.0'
-    api 'org.apache.commons:commons-lang3:3.20.0'
+    api libs.guava
+    api libs.commons.io
+    api libs.commons.lang3
 
     // logging
-    testImplementation 'org.apache.logging.log4j:log4j-api:2.25.3'
-    testImplementation 'org.apache.logging.log4j:log4j-core:2.25.3'
-    testImplementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.25.3'
-    testImplementation 'org.slf4j:jcl-over-slf4j:2.0.17'
-    testImplementation 'org.slf4j:jul-to-slf4j:2.0.17'
-    api                'org.slf4j:slf4j-api:2.0.17'
+    testImplementation libs.log4j.api
+    testImplementation libs.log4j.core
+    testImplementation libs.log4j.slf4j2
+    testImplementation libs.slf4j.jcl
+    testImplementation libs.slf4j.jul
+    api                libs.slf4j.api
 
     // for test fixtures
-    testFixturesApi 'org.apache.commons:commons-lang3:3.20.0'
-    testFixturesApi 'org.junit.jupiter:junit-jupiter:5.14.3'
+    testFixturesApi libs.commons.lang3
+    testFixturesApi libs.junit.jupiter
 
     // for unit testing
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
 }
