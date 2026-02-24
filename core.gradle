@@ -48,11 +48,6 @@ repositories {
     mavenCentral()
 }
 
-task testsJar(type:Jar, dependsOn: testClasses) {
-    archiveClassifier.set('tests')
-    from sourceSets.test.output
-}
-
 test {
     // enable JUnit 5 tests
     useJUnitPlatform()
@@ -113,14 +108,6 @@ if(plugins.hasPlugin("com.github.johnrengelman.shadow")) {
         // shadow configuration is added by Shadow plugin, but it's only configured for the main sourceset
         test.compileClasspath += configurations.shadow
         test.runtimeClasspath += configurations.shadow
-    }
-}
-
-
-// attach tests jar to the vanniktech-managed 'maven' publication
-afterEvaluate {
-    publishing.publications.named('maven') {
-        artifact testsJar
     }
 }
 
