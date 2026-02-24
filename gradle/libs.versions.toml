@@ -1,0 +1,30 @@
+[versions]
+errorprone = "2.47.0"
+guava = "33.5.0-jre"
+immutables = "2.12.1"
+commons-io = "2.21.0"
+commons-lang3 = "3.20.0"
+junit = "5.14.3"
+log4j = "2.25.3"
+slf4j = "2.0.17"
+
+[libraries]
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+immutables-value = { module = "org.immutables:value", version.ref = "immutables" }
+immutables-annotations = { module = "org.immutables:value-annotations", version.ref = "immutables" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j2 = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-jcl = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+slf4j-jul = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
+
+[plugins]
+versions = { id = "com.github.ben-manes.versions", version = "0.53.0" }
+errorprone = { id = "net.ltgt.errorprone", version = "5.0.0" }
+maven-publish = { id = "com.vanniktech.maven.publish", version = "0.36.0" }
