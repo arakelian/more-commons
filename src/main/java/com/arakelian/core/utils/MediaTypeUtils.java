@@ -290,7 +290,7 @@ public class MediaTypeUtils {
      * @return true if the MIME type is an image type
      */
     public static boolean isImage(final String mimeType) {
-        return StringUtils.startsWith(mimeType, "image/");
+        return mimeType != null && mimeType.startsWith("image/");
     }
 
     /**
