@@ -2,14 +2,12 @@
 
 plugins {
     id 'java-library'
+    id 'java-test-fixtures'
     id 'eclipse'
     id 'idea'
 
     // keep dependencies up-to-date!
     id 'com.github.ben-manes.versions' version '0.53.0'
-
-    // useful for creating immutable java beans
-    id 'org.inferred.processors' version '3.7.0'
 
     // to ensure clean code
     id "net.ltgt.errorprone" version "5.0.0"
@@ -24,7 +22,7 @@ version = '5.0.0'
 apply from: "core.gradle"
 
 wrapper {
-    gradleVersion = '8.14'
+    gradleVersion = '9.3.1'
 }
 
 mavenPublishing {
@@ -60,7 +58,9 @@ mavenPublishing {
 }
 
 dependencies {
-    processor 'org.immutables:value:2.12.1'
+    annotationProcessor 'org.immutables:value:2.12.1'
+    testAnnotationProcessor 'org.immutables:value:2.12.1'
+    compileOnly 'org.immutables:value:2.12.1'
 
     // annotations
     api 'org.immutables:value-annotations:2.12.1'
@@ -79,6 +79,10 @@ dependencies {
     testImplementation 'org.slf4j:jcl-over-slf4j:2.0.17'
     testImplementation 'org.slf4j:jul-to-slf4j:2.0.17'
     api                'org.slf4j:slf4j-api:2.0.17'
+
+    // for test fixtures
+    testFixturesApi 'org.apache.commons:commons-lang3:3.20.0'
+    testFixturesApi 'org.junit.jupiter:junit-jupiter:5.14.3'
 
     // for unit testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
