@@ -40,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import com.arakelian.core.utils.DateUtils.EpochUnits;
 
+/**
+ * Tests for {@link DateUtils}.
+ */
 @SuppressWarnings({ "PreferJavaTimeOverload", "JavaUtilDate" })
 public class DateUtilsTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtilsTest.class);

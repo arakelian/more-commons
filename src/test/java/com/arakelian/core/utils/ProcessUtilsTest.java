@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import com.arakelian.core.utils.ProcessUtils.ProcessInfo;
 import com.arakelian.core.utils.ProcessUtils.StringOut;
 
+/**
+ * Tests for {@link ProcessUtils}.
+ */
 public class ProcessUtilsTest {
     private static Logger LOGGER = LoggerFactory.getLogger(ProcessUtilsTest.class);
 

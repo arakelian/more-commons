@@ -29,6 +29,9 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.net.MediaType;
 
+/**
+ * Tests for {@link MediaTypeUtils}.
+ */
 public class MediaTypeUtilsTest {
     @Test
     public void testExtensions() {

@@ -383,6 +383,18 @@ public enum IsoCountryCode {
         CODES = Collections.unmodifiableMap(countryNames);
     }
 
+    /**
+     * Finds the first country from the given list that matches the specified postal code and/or
+     * state or province. If no countries are specified, all known countries are searched.
+     *
+     * @param postalCode
+     *            postal code to match, or {@code null} if not available
+     * @param stateOrProvince
+     *            state or province to match, or {@code null} if not available
+     * @param countries
+     *            list of candidate countries to search, or empty to search all countries
+     * @return matching {@link IsoCountryCode}, or {@code null} if no match is found
+     */
     public static IsoCountryCode findCountry(
             final String postalCode,
             final String stateOrProvince,
@@ -519,39 +531,87 @@ public enum IsoCountryCode {
                 : ImmutableSortedSet.of();
     }
 
+    /**
+     * Returns the address format string for this country. Defaults to the US format if no
+     * country-specific format is defined.
+     *
+     * @return address format string
+     */
     public String getAddressFormat() {
         // default to US format if not specified
         return addressFormat != null && addressFormat.length() != 0 ? addressFormat : US.addressFormat;
     }
 
+    /**
+     * Returns the English name of this country.
+     *
+     * @return English country name
+     */
     public String getCountryName() {
         return countryName;
     }
 
+    /**
+     * Returns the resource bundle key for this country, suitable for use in localized lookups.
+     *
+     * @return resource bundle key
+     */
     public String getResourceBundleKey() {
         return getClass().getName() + "." + name();
     }
 
+    /**
+     * Returns the set of state or province names with diacritics stripped (Latin transliteration).
+     *
+     * @return immutable set of Latin state/province names
+     */
     public Set<String> getStateProvinceLatinNames() {
         return stateProvinceLatinNames;
     }
 
+    /**
+     * Returns the set of state or province names for this country.
+     *
+     * @return immutable set of state/province names
+     */
     public Set<String> getStateProvinceNames() {
         return stateProvinceNames;
     }
 
+    /**
+     * Returns the set of state or province codes for this country.
+     *
+     * @return immutable set of state/province codes
+     */
     public Set<String> getStatesProvinces() {
         return statesProvinces;
     }
 
+    /**
+     * Returns whether this country is a member of the European Union.
+     *
+     * @return {@code true} if the country is an EU member
+     */
     public boolean isEu() {
         return eu;
     }
 
+    /**
+     * Returns whether this country uses the Euro as its currency.
+     *
+     * @return {@code true} if the country uses the Euro
+     */
     public boolean isEuro() {
         return euro;
     }
 
+    /**
+     * Returns whether the given postal code matches this country's postal code pattern.
+     *
+     * @param postalCode
+     *            postal code to validate
+     * @return {@code true} if the postal code matches the expected pattern
+     */
     public boolean isValidPostalCode(final String postalCode) {
         if (postalCodePattern == null || StringUtils.isEmpty(postalCode)) {
             return false;
@@ -559,6 +619,14 @@ public enum IsoCountryCode {
         return postalCodePattern.matcher(postalCode).find();
     }
 
+    /**
+     * Returns whether the given value matches a known state or province code, name, or Latin name
+     * for this country.
+     *
+     * @param stateProvince
+     *            state or province code or name to validate
+     * @return {@code true} if the value matches a known state or province
+     */
     public boolean isValidStateOrProvince(final String stateProvince) {
         if (StringUtils.isEmpty(stateProvince)) {
             return false;
