@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '11' ]
+        java: [ '21' ]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -25,10 +25,10 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: ${{ matrix.java }}
-        distribution: 'adopt'
+        distribution: 'temurin'
     - name: Print Java version
       run: java -version
     - name: Gradle wrapper validation
-      uses: gradle/wrapper-validation-action@v1
+      uses: gradle/actions/wrapper-validation@v4
     - name: Run tests
       run: ./gradlew -Dorg.gradle.internal.launcher.welcomeMessageEnabled=false --no-daemon --stacktrace clean build
