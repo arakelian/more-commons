@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class providing static helper methods for reading, copying, and navigating XML streams
@@ -272,7 +272,7 @@ public class XmlStreamReaderUtils {
     public static void copyXMLStream(final InputStream is, final XMLStreamWriter writer, final int flags)
             throws XMLStreamException {
         final XMLInputFactory f = XMLInputFactory.newInstance();
-        final XMLStreamReader xmlReader = f.createXMLStreamReader(is, Charsets.UTF_8.name());
+        final XMLStreamReader xmlReader = f.createXMLStreamReader(is, StandardCharsets.UTF_8.name());
         try {
             copyXMLStream(xmlReader, writer, flags);
         } finally {

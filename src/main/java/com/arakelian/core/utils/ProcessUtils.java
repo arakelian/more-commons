@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import com.google.common.base.Preconditions;
 
 /**
@@ -311,7 +311,7 @@ public class ProcessUtils {
         public void run() {
             // use Java 8 feature that turns BufferedReader into Stream!
             final BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(inputStream, Charsets.UTF_8));
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             reader.lines().forEach(consumeInputLine);
         }
     }

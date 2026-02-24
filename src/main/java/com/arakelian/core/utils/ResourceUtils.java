@@ -20,7 +20,7 @@ package com.arakelian.core.utils;
 import java.io.IOException;
 import java.net.URL;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import com.google.common.io.Resources;
 
 /**
@@ -38,7 +38,7 @@ public class ResourceUtils {
      */
     public static String toString(final String resourcePath) throws IOException {
         final URL uri = Resources.getResource(resourcePath);
-        return Resources.toString(uri, Charsets.UTF_8);
+        return Resources.toString(uri, StandardCharsets.UTF_8);
     }
 
     private ResourceUtils() {
